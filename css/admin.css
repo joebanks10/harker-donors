@@ -1,0 +1,35 @@
+td.p2p-col-meta-role {
+    -moz-column-count: 3; /* Firefox */
+    -webkit-column-count: 3; /* Safari and Chrome */
+    column-count: 3;
+    width: 360px;
+}
+
+td.p2p-col-meta-role label {
+    display: block;
+    line-height: 21px;
+}
+
+td.p2p-col-meta-role input {
+    width: auto;
+}
+
+#adminmenu #menu-posts-donor div.wp-menu-image {
+    background-position: -300px -33px;
+}
+
+#adminmenu #menu-posts-donor:hover div.wp-menu-image {
+    background-position: -300px -1px;
+}
+
+#adminmenu #menu-posts-record div.wp-menu-image {
+    background-position: -150px -33px;
+}
+
+#adminmenu #menu-posts-record:hover div.wp-menu-image {
+    background-position: -150px -1px;
+}
+
+#backtoblog {
+    display: none;
+}

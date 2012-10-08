@@ -1,0 +1,7 @@
+a.add-donor-child {
+    display: block;
+}
+
+a.add-donor-child.disabled {
+    color: grey;
+}
