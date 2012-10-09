@@ -7,12 +7,11 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
 
     extract($atts = shortcode_atts( array(
         'class_year' => 0,
+        'school_year' => '2011-12'
     ), $atts ));
 
     if ( !isset($class_year) )
         return;
-
-    $school_year = '2011-12';
 
     $class_totals = array(
         '2024' => 81,
@@ -126,7 +125,12 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
         $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave.</h2>";
 
         $content .= $stat;
-        $content .= '<ul class="ar-list">' . $list . '</ul>';
+        if ( !empty( $list ) ) {
+            $content .= '<ul class="ar-list">' . $list . '</ul>';
+        }
+        else {
+            $content .= '<p>There are no donors at this time.</p>';
+        }
     }
 
     wp_reset_postdata();
@@ -138,19 +142,23 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
 /* Annual Giving Levels */
 add_shortcode( 'annual_giving', 'hkr_dnrs_ag_shortcode' );
 
-function hkr_dnrs_ag_shortcode() {
+function hkr_dnrs_ag_shortcode($atts) {
 
-    $cached_content = get_transient('ag_levels_cached');
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
+
+    $cached_year = str_replace('-', '_', $school_year);
+    $cached_content = get_transient($cached_year . '_ag_levels_cached');
     if( $cached_content ) {
         return $cached_content;
     }
 
-    $school_year = '2011-12';
     set_time_limit(60);
 
     $levels = array(
         array(
-            'label' => 'Leadership Circle',
+            'label' => 'Leadership Circle ($25,000+)',
             'slug' => 'leadership-circle',
             'min' => 25000,
             'max' => 999999999,
@@ -158,7 +166,7 @@ function hkr_dnrs_ag_shortcode() {
             'anonymous' => 0
         ),
         array(
-            'label' => 'Eagles\' Circle',
+            'label' => 'Eagles\' Circle ($10,000+)',
             'slug' => 'eagles-circle',
             'min' => 10000,
             'max' => 24999,
@@ -166,7 +174,7 @@ function hkr_dnrs_ag_shortcode() {
             'anonymous' => 0
         ),
         array(
-            'label' => 'Trustees\' Circle',
+            'label' => 'Trustees\' Circle ($7,500+)',
             'slug' => 'trustees-circle',
             'min' => 7500,
             'max' => 9999,
@@ -174,7 +182,7 @@ function hkr_dnrs_ag_shortcode() {
             'anonymous' => 0
         ),
         array(
-            'label' => 'Benefactors\' Circle',
+            'label' => 'Benefactors\' Circle ($5,000+)',
             'slug' => 'benefactors-circle',
             'min' => 5000,
             'max' => 7499,
@@ -182,7 +190,7 @@ function hkr_dnrs_ag_shortcode() {
             'anonymous' => 0
         ),
         array(
-            'label' => 'Head of School\'s Circle',
+            'label' => 'Head of School\'s Circle ($2,500+)',
             'slug' => 'head-of-schools-circle',
             'min' => 2500,
             'max' => 4999,
@@ -190,7 +198,7 @@ function hkr_dnrs_ag_shortcode() {
             'anonymous' => 0
         ),
         array(
-            'label' => 'Ambassadors\' Circle',
+            'label' => 'Ambassadors\' Circle ($1,000+)',
             'slug' => 'ambassadors-circle',
             'min' => 1000,
             'max' => 2499,
@@ -198,7 +206,7 @@ function hkr_dnrs_ag_shortcode() {
             'anonymous' => 0
         ),
         array(
-            'label' => 'Friends',
+            'label' => 'Friends (up to $999)',
             'slug' => 'friends',
             'min' => 1,
             'max' => 999,
@@ -270,13 +278,15 @@ function hkr_dnrs_ag_shortcode() {
                 if ( $record_custom['ag_amount'][0] < $levels[$i]['min'] || $record_custom['ag_amount'][0] > $levels[$i]['max'] ) {
                     continue;
                 }
-                
+
+                $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'class="ag-pledge"' : '';
+
                 if ( $title == 'Anonymous' ) {
                     $levels[$i]['anonymous']++;
                     continue;
                 }
 
-                $levels[$i]['list'] .= '<li>' . $title . '</li>';
+                $levels[$i]['list'] .= "<li $pledge_class>$title</li>";
             }
 
         }
@@ -286,17 +296,19 @@ function hkr_dnrs_ag_shortcode() {
         if ( $level['anonymous'] )
             $level['list'] .= "<li>Anonymous ({$level['anonymous']})</li>";
 
-        if ( empty($level['list']) )
-            continue;
-
         $content .= '<a name="' . $level['slug'] . '"></a>';
         $content .= '<h2>' . $level['label'] . '</h2>';
-        $content .= '<ul class="ar-list">' . $level['list'] . '</ul>';
+        if ( !empty( $level['list']) ) {
+            $content .= '<ul class="ar-list">' . $level['list'] . '</ul>';
+        }
+        else {
+            $content .= '<p>There are no donors at this time.</p>';
+        }
         $content .= '<p><a href="#top">Back to top</a></p>';
     }
 
     wp_reset_postdata();
-    set_transient( 'ag_levels_cached', $content, 60 * 60 * 24 );
+    set_transient($cached_year . '_ag_levels_cached', $content, 60 * 60 * 24 );
     return $content;
 }
 
@@ -305,9 +317,11 @@ function hkr_dnrs_ag_shortcode() {
 /* Alumni Leaders & Pacesetters */
 add_shortcode( 'alumni_lp', 'hkr_dnrs_alumni_lp_shortcode' );
 
-function hkr_dnrs_alumni_lp_shortcode() {
+function hkr_dnrs_alumni_lp_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $groups = array(
         'leaders' => array(
@@ -326,18 +340,18 @@ function hkr_dnrs_alumni_lp_shortcode() {
         'post_type' => 'constituent',
         'nopaging' => true,
         'tax_query' => array(
-		relation => 'AND',
-		array(
-			'taxonomy' => 'role',
-			'field' => 'slug',
-			'terms' => array( "$school_year-alumni" )
-		),
-                array(
-			'taxonomy' => 'role',
-			'field' => 'slug',
-			'terms' => array( "$school_year-record-owner", "$school_year-spouse" )
-		)
-	),
+    		'relation' => 'AND',
+    		array(
+    			'taxonomy' => 'role',
+    			'field' => 'slug',
+    			'terms' => array( "$school_year-alumni" )
+    		),
+                    array(
+    			'taxonomy' => 'role',
+    			'field' => 'slug',
+    			'terms' => array( "$school_year-record-owner", "$school_year-spouse" )
+    		)
+    	),
         'connected_type' => 'constituents_to_records',
         'connected_to' => 'any',
         'connected_meta' => array(
@@ -427,7 +441,12 @@ function hkr_dnrs_alumni_lp_shortcode() {
 
         foreach( $groups as $group ) {
             $content .= '<h2>'. $group['title'] . '</h2>';
-            $content .= '<ul class="ar-list">' . $group['list'] . '</ul>';
+            if ( !empty($group['list']) ) {
+                $content .= '<ul class="ar-list">' . $group['list'] . '</ul>';
+            }
+            else {
+                $content .= '<p>There are no donors at this time.</p>';
+            }
         }
 
     }
@@ -441,9 +460,11 @@ function hkr_dnrs_alumni_lp_shortcode() {
 /* Organizations */
 add_shortcode( 'organizations', 'hkr_dnrs_orgs_shortcode' );
 
-function hkr_dnrs_orgs_shortcode() {
+function hkr_dnrs_orgs_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -500,6 +521,9 @@ function hkr_dnrs_orgs_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at the time.';
+    }
     wp_reset_postdata();
     return $content;
 
@@ -510,9 +534,11 @@ function hkr_dnrs_orgs_shortcode() {
 /* Faculty & Staff */
 add_shortcode( 'faculty_staff', 'hkr_dnrs_fac_staff_shortcode' );
 
-function hkr_dnrs_fac_staff_shortcode() {
+function hkr_dnrs_fac_staff_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -569,6 +595,9 @@ function hkr_dnrs_fac_staff_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at the time.';
+    }
     wp_reset_postdata();
     return $content;
 
@@ -579,9 +608,11 @@ function hkr_dnrs_fac_staff_shortcode() {
 /* Grandparents */
 add_shortcode( 'grandparents', 'hkr_dnrs_gp_shortcode' );
 
-function hkr_dnrs_gp_shortcode() {
+function hkr_dnrs_gp_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -636,9 +667,10 @@ function hkr_dnrs_gp_shortcode() {
     ), 'grandchildren' );
 
     $content = '';
+    $content .= '<h2>Grandparents</h2>';
+    
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Grandparents</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -673,6 +705,9 @@ function hkr_dnrs_gp_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at the time.';
+    }
     wp_reset_postdata();
     return $content;
 
@@ -681,11 +716,13 @@ function hkr_dnrs_gp_shortcode() {
 
 
 /* Friends */
-add_shortcode( 'friends', 'hkr_dnrs_friends' );
+add_shortcode( 'friends', 'hkr_dnrs_friends_shortcode' );
 
-function hkr_dnrs_friends() {
+function hkr_dnrs_friends_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -736,9 +773,10 @@ function hkr_dnrs_friends() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>Friends</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Friends</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -765,6 +803,10 @@ function hkr_dnrs_friends() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at the time.';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -775,9 +817,11 @@ function hkr_dnrs_friends() {
 /* Honorary Gifts */
 add_shortcode( 'honorary_gifts', 'hkr_dnrs_iho_shortcode' );
 
-function hkr_dnrs_iho_shortcode() {
+function hkr_dnrs_iho_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -828,9 +872,10 @@ function hkr_dnrs_iho_shortcode() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>Honorary Gifts</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Honorary Gifts</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -866,6 +911,10 @@ function hkr_dnrs_iho_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at the time.';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -876,9 +925,11 @@ function hkr_dnrs_iho_shortcode() {
 /* Memorial Gifts */
 add_shortcode( 'memorial_gifts', 'hkr_dnrs_imo_shortcode' );
 
-function hkr_dnrs_imo_shortcode() {
+function hkr_dnrs_imo_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -929,9 +980,10 @@ function hkr_dnrs_imo_shortcode() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>Memorial Gifts</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Memorial Gifts</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -967,6 +1019,10 @@ function hkr_dnrs_imo_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at the time.';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -975,11 +1031,13 @@ function hkr_dnrs_imo_shortcode() {
 
 
 /* Eagle Clubs */
-add_shortcode( 'eagle_clubs', 'hkr_dnrs_eagle_clubs' );
+add_shortcode( 'eagle_clubs', 'hkr_dnrs_eagle_clubs_shortcode' );
 
-function hkr_dnrs_eagle_clubs() {
+function hkr_dnrs_eagle_clubs_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $clubs = array(
         array(
@@ -1064,8 +1122,7 @@ function hkr_dnrs_eagle_clubs() {
     if ( $query->have_posts() ) {
         foreach( $clubs as $club ) {
 
-            $content .= '<h2>' . $club['title'] . '</h2>';
-            $content .= '<ul class="ar-list">';
+            $list = '';
             $anonymous = 0;
 
             while ( $query->have_posts() ) {
@@ -1086,105 +1143,21 @@ function hkr_dnrs_eagle_clubs() {
                         continue;
                     }
 
-                    $content .= '<li>' . $title . '</li>';
+                    $list .= '<li>' . $title . '</li>';
                 }
             }
 
-            $content .= "<li>Anonymous ($anonymous)</li>";
-            $content .= '</ul>';
-            $query->rewind_posts();
-        }
-    }
-    wp_reset_postdata();
-    return $content;
-}
-
-function hkr_dnrs_eagle_clubs_by_record() {
-
-    $query = new WP_Query( array(
-        'post_type' => 'record',
-        'nopaging' => true,
-        'tax_query' => array(
-                array(
-                        'taxonomy' => 'gift',
-                        'field' => 'slug',
-                        'terms' => 'eagle-clubs'
-                ),
-                array(
-                        'taxonomy' => 'school_year',
-                        'field' => 'slug',
-                        'terms' => '2011-12'
-                )
-        ),
-        'meta_key' => 'ag_rec',
-        'orderby' => 'meta_value',
-        'order' => 'ASC'
-    ) );
-
-    p2p_type( 'constituents_to_records' )->each_connected( $query );
-
-    $content = '';
-    if ( $query->have_posts() ) {
-
-        $clubs = array(
-            array(
-                'title' => 'Financial Aid',
-                'slug' => 'financial-aid'
-            ),
-            array(
-                'title' => 'Athletic Boosters',
-                'slug' => 'athletic-boosters'
-            ),
-            array(
-                'title' => 'Friends of Debate',
-                'slug' => 'friends-of-debate'
-            ),
-            array(
-                'title' => 'Friends of the Library',
-                'slug' => 'friends-of-the-library'
-            ),
-            array(
-                'title' => 'Patrons of the Arts',
-                'slug' => 'patrons-of-the-arts'
-            ),
-            array(
-                'title' => 'Friends of Robotics',
-                'slug' => 'friends-of-robotics'
-            ),
-            array(
-                'title' => 'Friends of Journalism',
-                'slug' => 'friends-of-journalism'
-            )
-        );
-
-        foreach( $clubs as $club ) {
-
+            if ( $anonymous ) 
+                $list .= "<li>Anonymous ($anonymous)</li>";
+            
             $content .= '<h2>' . $club['title'] . '</h2>';
-            $content .= '<ul class="ar-list">';
-            $anonymous = 0;
-
-            while ( $query->have_posts() ) {
-                $query->the_post();
-                global $post;
-
-                if ( !has_term( $club['slug'], 'gift', $post->ID ) ) {
-                    continue;
-                }
-
-                $record_custom = get_post_custom( $post->ID );
-
-                $title = hkr_dnrs_get_title_by_record( $record_custom, 'ag_rec', $post->connected );
-
-                if ( $title == 'Anonymous' ) {
-                    $anonymous++;
-                    continue;
-                }
-                
-                $content .= '<li>' . $title . '</li>';
+            if ( !empty($list) ) {
+                $content .= '<ul class="ar-list">' . $list . '</ul>';
+            }
+            else {
+                $content .= '<p>There are no donors at this time.</p>';
             }
 
-            $content .= "<li>Anonymous ($anonymous)</li>";
-            $content .= '</ul>';
             $query->rewind_posts();
         }
     }
@@ -1194,11 +1167,13 @@ function hkr_dnrs_eagle_clubs_by_record() {
 
 
 /* Eagle's Nest Club */
-add_shortcode( 'ag_eagles_club', 'hkr_dnrs_ag_eagles_club' );
+add_shortcode( 'ag_eagles_club', 'hkr_dnrs_ag_eagles_club_shortcode' );
 
-function hkr_dnrs_ag_eagles_club() {
+function hkr_dnrs_ag_eagles_club_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1249,9 +1224,10 @@ function hkr_dnrs_ag_eagles_club() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>Annual Giving Eagle\'s Nest Club</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Annual Giving Eagle\'s Nest Club</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -1269,75 +1245,24 @@ function hkr_dnrs_ag_eagles_club() {
                     continue;
                 }
 
-                if ( has_term( 'eagles-nest-bold', 'gift', $record->ID ) ) {
-                    $content .= '<li><strong>' . $title . '</strong></li>';
+                $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'class="ag-pledge"' : '';
+
+                if ( has_term( 'eagles-nest-bold', 'gift', $record->ID ) && !$pledge_class ) {
+                    $content .= "<li><strong>$title</strong></li>";
                 }
                 else {
-                    $content .= '<li>' . $title . '</li>';
+                    $content .= "<li $pledge_class>$title</li>";
                 }
             }
         }
-        $content .= "<li>Anonymous ($anonymous)</li>";
+        
+        if ( $anonymous )
+            $content .= "<li>Anonymous ($anonymous)</li>";
+        
         $content .= '</ul>';
     }
-    wp_reset_postdata();
-    return $content;
-
-}
-
-function hkr_dnrs_ag_eagles_club_by_record() {
-
-    $query = new WP_Query( array(
-        'post_type' => 'record',
-        'nopaging' => true,
-        'tax_query' => array(
-                array(
-                        'taxonomy' => 'gift',
-                        'field' => 'slug',
-                        'terms' => 'eagles-nest-club'
-                ),
-                array(
-                        'taxonomy' => 'school_year',
-                        'field' => 'slug',
-                        'terms' => '2011-12'
-                )
-        ),
-        'meta_key' => 'ag_rec',
-        'orderby' => 'meta_value',
-        'order' => 'ASC'
-    ) );
-
-    p2p_type( 'constituents_to_records' )->each_connected( $query );
-
-    $content = '';
-    if ( $query->have_posts() ) {
-
-        $content .= '<h2>Annual Giving Eagle\'s Nest Club</h2>';
-        $content .= '<ul class="ar-list">';
-        $anonymous = 0;
-
-        while ( $query->have_posts() ) {
-            $query->the_post();
-            global $post;
-            $record_custom = get_post_custom( $post->ID );
-
-            $title = hkr_dnrs_get_title_by_record( $record_custom, 'ag_rec', $post->connected );
-
-            if ( $title == 'Anonymous' ) {
-                $anonymous++;
-                continue;
-            }
-
-            if ( has_term( 'eagles-nest-bold', 'gift' ) ) {
-                $content .= '<li><strong>' . $title . '</strong></li>';
-            }
-            else {
-                $content .= '<li>' . $title . '</li>';
-            }
-
-        }
-        $content .= "<li>Anonymous ($anonymous)</li>";
-        $content .= '</ul>';
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
     }
     wp_reset_postdata();
     return $content;
@@ -1349,48 +1274,87 @@ function hkr_dnrs_ag_eagles_club_by_record() {
 /* Picnic */
 add_shortcode( 'picnic', 'hkr_dnrs_picnic_shortcode' );
 
-function hkr_dnrs_picnic_shortcode() {
+function hkr_dnrs_picnic_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
-    $sponsor_levels = array(
-        array(
-            'title' => 'Towering Top Hats',
-            'desc' => '($5,000+)',
-            'min' => 5000,
-            'max' => 999999
-        ),
-        array(
-            'title' => 'Stately Stetsons',
-            'desc' => '($2,500-$4,999)',
-            'min' => 2500,
-            'max' => 4999
-        ),
-        array(
-            'title' => 'Fancy Fedoras',
-            'desc' => '($1,500-$2,499)',
-            'min' => 1500,
-            'max' => 2499
-        ),
-        array(
-            'title' => 'Dashing Derbies',
-            'desc' => '($1,000-$1,499)',
-            'min' => 1000,
-            'max' => 1499
-        ),
-        array(
-            'title' => 'Beautiful Bonnets',
-            'desc' => '($500-$999)',
-            'min' => 500,
-            'max' => 999
-        ),
-        array(
-            'title' => 'Teenie Beanies',
-            'desc' => '($250-$499)',
-            'min' => 250,
-            'max' => 499
-        ),
-    );
+    if ( $school_year == '2011-12' ) {
+        $sponsor_levels = array(
+            array(
+                'title' => 'Towering Top Hats',
+                'desc' => '($5,000+)',
+                'min' => 5000,
+                'max' => 999999
+            ),
+            array(
+                'title' => 'Stately Stetsons',
+                'desc' => '($2,500+)',
+                'min' => 2500,
+                'max' => 4999
+            ),
+            array(
+                'title' => 'Fancy Fedoras',
+                'desc' => '($1,500+)',
+                'min' => 1500,
+                'max' => 2499
+            ),
+            array(
+                'title' => 'Dashing Derbies',
+                'desc' => '($1,000+)',
+                'min' => 1000,
+                'max' => 1499
+            ),
+            array(
+                'title' => 'Beautiful Bonnets',
+                'desc' => '($500+)',
+                'min' => 500,
+                'max' => 999
+            ),
+            array(
+                'title' => 'Teenie Beanies',
+                'desc' => '($250+)',
+                'min' => 250,
+                'max' => 499
+            ),
+        );
+    }
+    else if ( $school_year == '2012-13' ) {
+        $sponsor_levels = array(
+            array(
+                'title' => 'Best in Show',
+                'desc' => '($5,000+)',
+                'min' => 5000,
+                'max' => 999999
+            ),
+            array(
+                'title' => 'Great Growlers',
+                'desc' => '($2,500+)',
+                'min' => 2500,
+                'max' => 4999
+            ),
+            array(
+                'title' => 'High "Heelers"',
+                'desc' => '($1,200+)',
+                'min' => 1500,
+                'max' => 2499
+            ),
+            array(
+                'title' => 'Harker Barkers',
+                'desc' => '($600+)',
+                'min' => 600,
+                'max' => 1199
+            ),
+            array(
+                'title' => 'Doggie Diggers',
+                'desc' => '($300+)',
+                'min' => 300,
+                'max' => 599
+            )
+        );
+    }
+    
 
     $sponsors = array(
         'title' => 'Picnic Sponsors',
@@ -1466,7 +1430,7 @@ function hkr_dnrs_picnic_shortcode() {
 
         $content .= '<h2>' . $sponsors['title'] . '</h2>';
         foreach( $sponsors['levels'] as $level ) {
-            $ul = '';
+            $list = '';
             $anonymous = 0;
             while ( $query->have_posts() ) {
                 $query->the_post();
@@ -1490,25 +1454,27 @@ function hkr_dnrs_picnic_shortcode() {
                         continue;
                     }
 
-                    $ul .= '<li>' . $title . '</li>';
+                    $list .= '<li>' . $title . '</li>';
                 }
             }
 
             if ( $anonymous )
-                $ul .= "<li>Anonymous ($anonymous)</li>";
-
-            if ( empty($ul) )
-                continue;
+                $list .= "<li>Anonymous ($anonymous)</li>";
 
             $content .= '<h3>' . $level['title'] . ' '. $level['desc'] . '</h3>';
-            $content .= '<ul class="ar-list">' . $ul . '</ul>';
+            if ( !empty($list) ) {
+                $content .= '<ul class="ar-list">' . $list . '</ul>';
+            }
+            else {
+                $content .= '<p>There are no donors at this time.</p>';
+            }
+            
             $query->rewind_posts();
         }
 
         foreach( $groups as $group ) {
 
-            $content .= '<h2>' . $group['title'] . '</h2>';
-            $content .= '<ul class="ar-list">';
+            $list = '';
             $anonymous = 0;
 
             while ( $query->have_posts() ) {
@@ -1529,14 +1495,20 @@ function hkr_dnrs_picnic_shortcode() {
                         continue;
                     }
 
-                    $content .= '<li>' . $title . '</li>';
+                    $list .= '<li>' . $title . '</li>';
                 }
             }
 
             if ( $anonymous )
-                $content .= "<li>Anonymous ($anonymous)</li>";
+                $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '</ul>';
+            $content .= '<h2>' . $group['title'] . '</h2>';
+            if ( !empty($list) ) {
+                $content .= '<ul class="ar-list">' . $list . '</ul>';
+            }
+            else {
+                $content .= '<p>There are no donors at this time.</p>';
+            }
             $query->rewind_posts();
         }
     }
@@ -1549,9 +1521,11 @@ function hkr_dnrs_picnic_shortcode() {
 /* Fashion Show */
 add_shortcode( 'fashion_show', 'hkr_dnrs_fs_shortcode' );
 
-function hkr_dnrs_fs_shortcode() {
+function hkr_dnrs_fs_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $sponsor_levels = array(
         array(
@@ -1654,7 +1628,7 @@ function hkr_dnrs_fs_shortcode() {
 
         $content .= '<h2>' . $sponsors['title'] . '</h2>';
         foreach( $sponsors['levels'] as $level ) {
-            $ul = '';
+            $list = '';
             $anonymous = 0;
             while ( $query->have_posts() ) {
                 $query->the_post();
@@ -1678,25 +1652,26 @@ function hkr_dnrs_fs_shortcode() {
                         continue;
                     }
 
-                    $ul .= '<li>' . $title . '</li>';
+                    $list .= '<li>' . $title . '</li>';
                 }
             }
 
             if ( $anonymous )
-                $ul .= "<li>Anonymous ($anonymous)</li>";
-
-            if ( empty($ul) )
-                continue;
+                $list .= "<li>Anonymous ($anonymous)</li>";
 
             $content .= '<h3>' . $level['title'] . ' '. $level['desc'] . '</h3>';
-            $content .= '<ul class="ar-list">' . $ul . '</ul>';
+            if ( !empty($list) ) {
+                $content .= '<ul class="ar-list">' . $list . '</ul>';
+            }
+            else {
+                $content .= '<p>There are no donors at this time.</p>';
+            }
             $query->rewind_posts();
         }
 
         foreach( $groups as $group ) {
 
-            $content .= '<h2>' . $group['title'] . '</h2>';
-            $content .= '<ul class="ar-list">';
+            $list = '';
             $anonymous = 0;
 
             while ( $query->have_posts() ) {
@@ -1717,14 +1692,20 @@ function hkr_dnrs_fs_shortcode() {
                         continue;
                     }
 
-                    $content .= '<li>' . $title . '</li>';
+                    $list .= '<li>' . $title . '</li>';
                 }
             }
 
             if ( $anonymous )
-                $content .= "<li>Anonymous ($anonymous)</li>";
+                $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '</ul>';
+            $content .= '<h2>' . $group['title'] . '</h2>';
+            if ( !empty($list) ) {
+                $content .= '<ul class="ar-list">' . $list . '</ul>';
+            }
+            else {
+                $content .= '<p>There are no donors at this time.</p>';
+            }
             $query->rewind_posts();
         }
     }
@@ -1737,15 +1718,17 @@ function hkr_dnrs_fs_shortcode() {
 /* Alumni */
 add_shortcode( 'alumni', 'hkr_dnrs_alumni_shortcode' );
 
-function hkr_dnrs_alumni_shortcode() {
+function hkr_dnrs_alumni_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
         'nopaging' => true,
         'tax_query' => array(
-                relation => 'AND',
+                'relation' => 'AND',
 		array(
 			'taxonomy' => 'role',
 			'field' => 'slug',
@@ -1784,9 +1767,10 @@ function hkr_dnrs_alumni_shortcode() {
     ) );
 
     $content = '';
+    $content .= '<h2>Alumni</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Alumni</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -1802,8 +1786,16 @@ function hkr_dnrs_alumni_shortcode() {
 
             $content .= '<li>' . $title . '</li>';
         }
+
+        if ( $anonymous ) {
+            $content .= "<li>Anonymous ($anonymous)</li>";
+        }
+
         $content .= '</ul>';
 
+    }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
     }
 
     wp_reset_postdata();
@@ -1815,9 +1807,11 @@ function hkr_dnrs_alumni_shortcode() {
 /* Alumni Parents */
 add_shortcode( 'alumni_parents', 'hkr_dnrs_alparents_shortcode' );
 
-function hkr_dnrs_alparents_shortcode() {
+function hkr_dnrs_alparents_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1878,9 +1872,10 @@ function hkr_dnrs_alparents_shortcode() {
     ), 'children' );
 
     $content = '';
+    $content .= '<h2>Alumni Parents</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Alumni Parents</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -1915,6 +1910,10 @@ function hkr_dnrs_alparents_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -1925,9 +1924,11 @@ function hkr_dnrs_alparents_shortcode() {
 /* Senior Class Gift */
 add_shortcode( 'senior_class_gift', 'hkr_dnrs_senior_class_gift_shortcode' );
 
-function hkr_dnrs_senior_class_gift_shortcode() {
+function hkr_dnrs_senior_class_gift_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1961,9 +1962,10 @@ function hkr_dnrs_senior_class_gift_shortcode() {
     ) );
 
     $content = '';
+    $content .= '<h2>Senior Class Gift</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Senior Class Gift</h2>';
         $content .= '<ul class="ar-list">';
 
         while ( $query->have_posts() ) {
@@ -1974,6 +1976,10 @@ function hkr_dnrs_senior_class_gift_shortcode() {
         }
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -1984,9 +1990,11 @@ function hkr_dnrs_senior_class_gift_shortcode() {
 /* Senior Parent Appreciation Gift */
 add_shortcode( 'spag', 'hkr_dnrs_spag_shortcode' );
 
-function hkr_dnrs_spag_shortcode() {
+function hkr_dnrs_spag_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2037,9 +2045,10 @@ function hkr_dnrs_spag_shortcode() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>Senior Parent Appreciation Gift</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Senior Parent Appreciation Gift</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -2066,6 +2075,10 @@ function hkr_dnrs_spag_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -2076,9 +2089,11 @@ function hkr_dnrs_spag_shortcode() {
 /* John Near Excellence in History Education Endowment */
 add_shortcode( 'john_near_end', 'hkr_dnrs_john_near_shortcode' );
 
-function hkr_dnrs_john_near_shortcode() {
+function hkr_dnrs_john_near_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2128,9 +2143,10 @@ function hkr_dnrs_john_near_shortcode() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>John Near Excellence in History Education Endowment</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>John Near Excellence in History Education Endowment</h2>';
         $content .= '<ul class="ar-list nocol">';
         $anonymous = 0;
 
@@ -2157,6 +2173,10 @@ function hkr_dnrs_john_near_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -2167,9 +2187,11 @@ function hkr_dnrs_john_near_shortcode() {
 /* Sharron Mittelstet Endowment */
 add_shortcode( 'sharron_end', 'hkr_dnrs_sharronm_shortcode' );
 
-function hkr_dnrs_sharronm_shortcode() {
+function hkr_dnrs_sharronm_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2219,9 +2241,10 @@ function hkr_dnrs_sharronm_shortcode() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>Endowed Scholarship Fund in Memory of Sharron Mittelstet</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>Endowed Scholarship Fund in Memory of Sharron Mittelstet</h2>';
         $content .= '<ul class="ar-list">';
         $anonymous = 0;
 
@@ -2248,6 +2271,10 @@ function hkr_dnrs_sharronm_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -2258,9 +2285,11 @@ function hkr_dnrs_sharronm_shortcode() {
 /* Nichols Planned Giving */
 add_shortcode( 'nichols_planned_giving', 'hkr_dnrs_nichols_planned_giving_shortcode' );
 
-function hkr_dnrs_nichols_planned_giving_shortcode() {
+function hkr_dnrs_nichols_planned_giving_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2310,9 +2339,10 @@ function hkr_dnrs_nichols_planned_giving_shortcode() {
     ), 'records' );
 
     $content = '';
+    $content .= '<h2>The Nichols Planned Giving Society</h2>';
+
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>The Nichols Planned Giving Society</h2>';
         $content .= '<ul class="ar-list nocol">';
         $anonymous = 0;
 
@@ -2339,6 +2369,10 @@ function hkr_dnrs_nichols_planned_giving_shortcode() {
 
         $content .= '</ul>';
     }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
     wp_reset_postdata();
     return $content;
 
@@ -2349,9 +2383,11 @@ function hkr_dnrs_nichols_planned_giving_shortcode() {
 /* Capital Giving */
 add_shortcode( 'capital_giving', 'hkr_dnrs_cc_shortcode' );
 
-function hkr_dnrs_cc_shortcode() {
+function hkr_dnrs_cc_shortcode($atts) {
 
-    $school_year = '2011-12';
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
 
     $levels = array(
         array(
@@ -2478,9 +2514,8 @@ function hkr_dnrs_cc_shortcode() {
     if ( $query->have_posts() ) {
 
         foreach( $levels as $level ) {
-
-            $content .= '<h2>' . $level['title'] . ' ' . $level['desc'] . '</h2>';
-            $content .= '<ul class="ar-list">';
+            
+            $list = '';
             $anonymous = 0;
 
             while ( $query->have_posts() ) {
@@ -2502,18 +2537,25 @@ function hkr_dnrs_cc_shortcode() {
                     }
 
                     if ( has_term('capital-giving-bold', 'gift', $record->ID ) ) {
-                        $content .= '<li><strong>' . $title . '</strong></li>';
+                        $list .= '<li><strong>' . $title . '</strong></li>';
                     }
                     else {
-                        $content .= '<li>' . $title . '</li>';
+                        $list .= '<li>' . $title . '</li>';
                     }
                 }
             }
             
             if ( $anonymous )
-                $content .= "<li>Anonymous ($anonymous)</li>";
+                $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '</ul>';
+            $content .= '<h2>' . $level['title'] . ' ' . $level['desc'] . '</h2>';
+            if ( !empty($list) ) {
+                $content .= '<ul class="ar-list">' . $list . '</ul>';
+            }
+            else {
+                $content .= '<p>There are no donors at this time.</p>';
+            }
+            
             $query->rewind_posts();
         }
     }
