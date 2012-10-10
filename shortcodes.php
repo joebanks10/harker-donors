@@ -13,21 +13,41 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
     if ( !isset($class_year) )
         return;
 
-    $class_totals = array(
-        '2024' => 81,
-        '2023' => 84,
-        '2022' => 89,
-        '2021' => 104,
-        '2020' => 118,
-        '2019' => 131,
-        '2018' => 164,
-        '2017' => 168,
-        '2016' => 167,
-        '2015' => 191,
-        '2014' => 183,
-        '2013' => 186,
-        '2012' => 179,
-    ); // TODO: Use configuration from Annual Report post
+    if ( $school_year == '2011-12' ) {
+        $class_totals = array(
+            '2024' => 81,
+            '2023' => 84,
+            '2022' => 89,
+            '2021' => 104,
+            '2020' => 118,
+            '2019' => 131,
+            '2018' => 164,
+            '2017' => 168,
+            '2016' => 167,
+            '2015' => 191,
+            '2014' => 183,
+            '2013' => 186,
+            '2012' => 179,
+        ); // TODO: Use configuration from Annual Report post
+    }
+    else {
+        $class_totals = array(
+            '2025' => 77,
+            '2024' => 78,
+            '2023' => 86,
+            '2022' => 99,
+            '2021' => 108,
+            '2020' => 121,
+            '2019' => 163,
+            '2018' => 162,
+            '2017' => 170,
+            '2016' => 188,
+            '2015' => 186,
+            '2014' => 174,
+            '2013' => 179
+        ); 
+    }
+    
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -97,6 +117,8 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
 
         $list = '';
         $class_count = 0;
+        $has_pledge = false;
+
         while ( $query->have_posts() ) {
             $query->the_post();
             global $post;
@@ -110,19 +132,33 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
 
                 $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr', $post->parents );
 
+                $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'ag-pledge' : '';
+                if ( $pledge_class ) {
+                    $has_pledge = true;
+                }
+
                 $icon = ' ';
                 if ( in_array('senior-brick', $gift_terms ) )
                     $icon .= '<i class="icon-tint"></i>';
                 if ( in_array('senior-parent-appreciation-gift', $gift_terms ) )
                     $icon .= '<i class="icon-star"></i>';
 
-                $list .= '<li class="' . implode(' ', get_post_class( $gift_terms, $record->ID ) ) . '">' . $title . '<br />' . $child . $icon . '</li>';
+                $classes = $gift_terms;
+                $classes[] = $pledge_class;
+
+                $list .= '<li class="' . implode(' ', get_post_class( $classes, $record->ID ) ) . '">' . $title . '<br />' . $child . $icon . '</li>';
             }
             $class_count++;
         }
 
         $percent = round( $class_count/$class_totals[$class_year] * 100 );
-        $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave.</h2>";
+        if ( $has_pledge ) {
+            $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave/pledged.</h2>";
+        }
+        else {
+            $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave.</h2>";
+        }
+        
 
         $content .= $stat;
         if ( !empty( $list ) ) {
