@@ -159,8 +159,12 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
             $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave.</h2>";
         }
         
-
         $content .= $stat;
+
+        if ( $has_pledge ) {
+            $content .= '<p>Gave | <span class="ag-pledge">Pledged</span></p>';
+        }
+
         if ( !empty( $list ) ) {
             $content .= '<ul class="ar-list">' . $list . '</ul>';
         }
@@ -170,7 +174,7 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -300,6 +304,8 @@ function hkr_dnrs_ag_shortcode($atts) {
     ), 'records' );
 
     $content = '';
+    $has_pledge = false;
+
     while ( $query->have_posts() ) {
         $query->the_post();
         global $post;
@@ -316,6 +322,9 @@ function hkr_dnrs_ag_shortcode($atts) {
                 }
 
                 $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'class="ag-pledge"' : '';
+                if ( $pledge_class ) {
+                    $has_pledge = true;
+                }
 
                 if ( $title == 'Anonymous' ) {
                     $levels[$i]['anonymous']++;
@@ -326,6 +335,10 @@ function hkr_dnrs_ag_shortcode($atts) {
             }
 
         }
+    }
+
+    if ( $has_pledge ) {
+        $content .= '<p>Gave | <span class="ag-pledge">Pledged</span></p>';
     }
 
     foreach( $levels as $level ) {
@@ -345,7 +358,7 @@ function hkr_dnrs_ag_shortcode($atts) {
 
     wp_reset_postdata();
     set_transient($cached_year . '_ag_levels_cached', $content, 60 * 60 * 24 );
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -488,7 +501,7 @@ function hkr_dnrs_alumni_lp_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -561,7 +574,7 @@ function hkr_dnrs_orgs_shortcode($atts) {
         $content .= '<p>There are no donors at the time.';
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -635,7 +648,7 @@ function hkr_dnrs_fac_staff_shortcode($atts) {
         $content .= '<p>There are no donors at the time.';
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -745,7 +758,7 @@ function hkr_dnrs_gp_shortcode($atts) {
         $content .= '<p>There are no donors at the time.';
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -844,7 +857,7 @@ function hkr_dnrs_friends_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -952,7 +965,7 @@ function hkr_dnrs_iho_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -1060,7 +1073,7 @@ function hkr_dnrs_imo_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -1198,7 +1211,7 @@ function hkr_dnrs_eagle_clubs_shortcode($atts) {
         }
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -1260,12 +1273,11 @@ function hkr_dnrs_ag_eagles_club_shortcode($atts) {
     ), 'records' );
 
     $content = '';
-    $content .= '<h2>Annual Giving Eagle\'s Nest Club</h2>';
-
     if ( $query->have_posts() ) {
 
-        $content .= '<ul class="ar-list">';
+        $list = '';
         $anonymous = 0;
+        $has_pledge = false;
 
         while ( $query->have_posts() ) {
             $query->the_post();
@@ -1282,26 +1294,36 @@ function hkr_dnrs_ag_eagles_club_shortcode($atts) {
                 }
 
                 $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'class="ag-pledge"' : '';
+                if ( $pledge_class ) {
+                    $has_pledge = true;
+                }
 
                 if ( has_term( 'eagles-nest-bold', 'gift', $record->ID ) && !$pledge_class ) {
-                    $content .= "<li><strong>$title</strong></li>";
+                    $list .= "<li><strong>$title</strong></li>";
                 }
                 else {
-                    $content .= "<li $pledge_class>$title</li>";
+                    $list .= "<li $pledge_class>$title</li>";
                 }
             }
         }
         
         if ( $anonymous )
-            $content .= "<li>Anonymous ($anonymous)</li>";
+            $list .= "<li>Anonymous ($anonymous)</li>";
         
-        $content .= '</ul>';
+    }
+
+    $content .= '<h2>Annual Giving Eagle\'s Nest Club</h2>';
+    if ( !empty($list) ) {
+        if ( $has_pledge ) {
+            $content .= '<p>Gave | <span class="ag-pledge">Pledged</span></p>';
+        }
+        $content .= '<ul class="ar-list">' . $list . '</ul>';
     }
     else {
         $content .= '<p>There are no donors at this time.</p>';
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -1549,7 +1571,7 @@ function hkr_dnrs_picnic_shortcode($atts) {
         }
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -1746,7 +1768,7 @@ function hkr_dnrs_fs_shortcode($atts) {
         }
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -1835,7 +1857,7 @@ function hkr_dnrs_alumni_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -1951,7 +1973,7 @@ function hkr_dnrs_alparents_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -2017,7 +2039,7 @@ function hkr_dnrs_senior_class_gift_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -2116,7 +2138,7 @@ function hkr_dnrs_spag_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -2214,7 +2236,7 @@ function hkr_dnrs_john_near_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -2312,7 +2334,7 @@ function hkr_dnrs_sharronm_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -2410,7 +2432,7 @@ function hkr_dnrs_nichols_planned_giving_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
@@ -2596,7 +2618,7 @@ function hkr_dnrs_cc_shortcode($atts) {
         }
     }
     wp_reset_postdata();
-    return $content;
+    return apply_filters( 'hkr_dnrs_list', $content );
 }
 
 
@@ -2656,6 +2678,12 @@ function hkr_dnrs_get_title_by_org( $cons_custom ) {
     }
 
     return $title;
+}
+
+add_filter( 'hkr_dnrs_list', 'hkr_dnrs_print_last_modified', 1 );
+
+function hkr_dnrs_print_last_modified( $content ) {
+    return $content . '<p><b>Last updated:</b> September 30, 2012</p>'; // TODO: make dynamic!
 }
 
 
