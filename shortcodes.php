@@ -207,7 +207,7 @@ function hkr_dnrs_ag_shortcode($atts) {
     $cached_year = str_replace('-', '_', $school_year);
     $cached_content = get_transient($cached_year . '_ag_levels_cached');
     if( $cached_content ) {
-        return $cached_content;
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     set_time_limit(60);
