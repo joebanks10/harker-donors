@@ -175,8 +175,10 @@ function hkr_dnrs_print_constituent_fields() {
     extract( $custom );
 
     // get class year term
-    $class_years = wp_get_object_terms( $post->ID, 'class_year', array('fields' => 'names') );
-    $class_year = $class_years[0];
+    $class_year = hkr_dnrs_get_class_year( $post->ID );
+    if ( !$class_year ) {
+        $class_year = '';
+    }
 
     // get years
     $current_year = date('Y');
@@ -233,7 +235,7 @@ function hkr_dnrs_save_constituent() {
         return;
 
     global $post;
-    $fields = array( 'fname', 'lname', 'class_year', 'org_name', 'import_id' );
+    $fields = array( 'fname', 'lname', 'org_name', 'import_id' );
 
     hkr_save_custom_fields( $post->ID, $fields );
 
@@ -343,7 +345,7 @@ function hkr_dnrs_constituent_title( $title, $post_id ) {
 
     $fname = get_post_meta( $post_id, 'fname', true );
     $lname = get_post_meta( $post_id, 'lname', true );
-    $class_year = get_post_meta( $post_id, 'class_year', true);
+    $class_year = hkr_dnrs_get_class_year( $post_id );
 
     if ( !empty($fname) || !empty($lname) ) {
         $title = trim("$fname $lname");
@@ -876,7 +878,7 @@ function hkr_dnrs_constituent_col_data($column_name, $post_ID) {
                 echo $lname;
 	}
         if ( $column_name == 'class_year' ) {
-            $class_year = get_post_meta( $post_ID, 'class_year', true);
+            $class_year = hkr_dnrs_get_class_year( $post_id );
             if ( $class_year )
                 echo $class_year;
         }
@@ -894,9 +896,8 @@ add_filter( 'manage_edit-constituent_sortable_columns', 'hkr_dnrs_constituent_co
 
 function hkr_dnrs_constituent_col_register_sortable( $defaults ) {
 	// $defaults['modified'] = 'Modified';
-        $defaults['fname'] = 'First Name';
-        $defaults['lname'] = 'Last Name';
-        $defaults['class_year'] = 'Class Year';
+    $defaults['fname'] = 'First Name';
+    $defaults['lname'] = 'Last Name';
 
 	return $defaults;
 }
@@ -920,12 +921,6 @@ function custom_cons_column_orderby( $vars ) {
 		$vars = array_merge( $vars, array(
 			'meta_key' => 'lname',
 			'orderby' => 'meta_value'
-		) );
-	}
-        if ( isset( $vars['orderby'] ) && 'ClassYear' == $vars['orderby'] ) {
-		$vars = array_merge( $vars, array(
-			'meta_key' => 'class_year',
-			'orderby' => 'meta_value_num'
 		) );
 	}
 
@@ -985,6 +980,19 @@ function custom_record_column_orderby( $vars ) {
 	}
 
 	return $vars;
+}
+
+/* Helper Functions
+------------------------------------------------------------------------ */
+
+function hkr_dnrs_get_class_year( $post_id ) {
+    $class_years = wp_get_object_terms( $post_id, 'class_year', array('fields' => 'names') );
+    if ( count($class_years) == 1 ) {
+        return $class_years[0];
+    } 
+    else {
+        return false;
+    }
 }
 
 ?>

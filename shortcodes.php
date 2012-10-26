@@ -124,8 +124,7 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
         while ( $query->have_posts() ) {
             $query->the_post();
             global $post;
-            $cons_custom = get_post_custom( $post->ID );
-            $child = hkr_dnrs_get_title_by_cons( $cons_custom );
+            $child = hkr_dnrs_get_title_by_cons( $post->ID );
 
             foreach( $post->records as $record ) {
 
@@ -157,15 +156,17 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
             $class_count++;
         }
 
-        $percent = round( $class_count/$class_totals[$class_year] * 100 );
-        if ( $has_pledge ) {
-            $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave/pledged.</h2>";
-        }
-        else {
-            $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave.</h2>";
-        }
+        if ( isset($class_totals[$class_year]) ) {
+            $percent = round( $class_count/$class_totals[$class_year] * 100 );
+            if ( $has_pledge ) {
+                $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave/pledged.</h2>";
+            }
+            else {
+                $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave.</h2>";
+            }
         
-        $content .= $stat;
+            $content .= $stat;
+        }
 
         if ( $has_pledge ) {
             $content .= '<p>Gave | <span class="ag-pledge">Pledged</span></p>';
@@ -474,9 +475,12 @@ function hkr_dnrs_alumni_lp_shortcode($atts) {
             $query->the_post();
             global $post;
 
-            $cons_custom = get_post_custom( $post->ID );
-            $class_year = ( !empty($cons_custom['class_year'][0]) ) ? intval($cons_custom['class_year'][0]) : false;
-            $title = hkr_dnrs_get_title_by_cons( $cons_custom );
+            $class_year = hkr_dnrs_get_class_year( $post->ID );
+            if ( !$class_year ) {
+                continue;
+            }
+
+            $title = hkr_dnrs_get_title_by_cons( $post->ID );
 
             foreach( $post->records as $record ) {
                 $record_custom = get_post_custom( $record->ID );
@@ -748,7 +752,7 @@ function hkr_dnrs_gp_shortcode($atts) {
             foreach( $post->grandchildren as $child ) {
                 $child_custom = get_post_custom( $child->ID );
                 $children .= '<br />';
-                $children .= hkr_dnrs_get_title_by_cons( $child_custom );
+                $children .= hkr_dnrs_get_title_by_cons( $child->ID );
             }
 
             foreach( $post->records as $record ) {
@@ -1962,7 +1966,7 @@ function hkr_dnrs_alparents_shortcode($atts) {
             foreach( $post->children as $child ) {
                 $child_custom = get_post_custom( $child->ID );
                 $children .= '<br />';
-                $children .= hkr_dnrs_get_title_by_cons( $child_custom );
+                $children .= hkr_dnrs_get_title_by_cons( $child->ID );
             }
 
             foreach( $post->records as $record ) {
@@ -2673,10 +2677,12 @@ function hkr_dnrs_get_title_by_record( $record_custom, $recognition, $constituen
     return $title;
 }
 
-function hkr_dnrs_get_title_by_cons( $cons_custom ) {
+function hkr_dnrs_get_title_by_cons( $post_id ) {
     $title = 'Anonymous';
 
-    $class_year = substr( $cons_custom['class_year'][0], -2);
+    $cons_custom = get_post_custom( $post_id );
+
+    $class_year = substr( hkr_dnrs_get_class_year( $post_id ), -2);
     $class_year = ( !empty($class_year) ) ? ' \'' . $class_year : '';
 
     if ( !empty($cons_custom['fname'][0]) || !empty($cons_custom['lname'][0]) ) {
