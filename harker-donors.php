@@ -878,7 +878,7 @@ function hkr_dnrs_constituent_col_data($column_name, $post_ID) {
                 echo $lname;
 	}
         if ( $column_name == 'class_year' ) {
-            $class_year = hkr_dnrs_get_class_year( $post_id );
+            $class_year = hkr_dnrs_get_class_year( $post_ID );
             if ( $class_year )
                 echo $class_year;
         }
