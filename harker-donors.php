@@ -687,10 +687,14 @@ function hkr_dnrs_save_record() {
     $fields_str = array( 'ag_rec', 'picnic_rec', 'fs_rec', 'cc_rec', 'end_rec', 'inf_addr', 'planned_giving_rec', 'alumni_rec', 'import_id' );
     $fields_num = array( 'ag_amount', 'picnic_amount', 'fs_amount' );
     $school_year = ( !empty($_POST['school_year']) ) ? $_POST['school_year'] : null;
+    $cached_year = str_replace('-', '_', $school_year);
 
     hkr_save_custom_fields( $post->ID, $fields_str );
     hkr_save_custom_fields( $post->ID, $fields_num, 0 );
     wp_set_object_terms( $post->ID, $school_year, 'school_year' );
+
+    // delete transient of ag levels shortcode
+    delete_transient($cached_year . '_ag_levels_cached');
 }
 
 
