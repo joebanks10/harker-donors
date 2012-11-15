@@ -126,10 +126,50 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
             global $post;
             $child = hkr_dnrs_get_title_by_cons( $post->ID );
 
+            if ( empty ( $post->records ) ) {
+                // initial query missed the association, so query again
+                $post->records = get_posts( array(
+                    'connected_type' => 'constituents_to_records',
+                    'connected_items' => $post,
+                    'nopaging' => true,
+                    'suppress_filters' => false,
+                    'connected_meta' => array( 'role' => 'Child' ),
+                    'tax_query' => array(
+                        array(
+                                'taxonomy' => 'gift',
+                                'field' => 'slug',
+                                'terms' => 'annual-giving'
+                        ),
+                        array(
+                                'taxonomy' => 'school_year',
+                                'field' => 'slug',
+                                'terms' => $school_year
+                        )
+                    )
+                ) );
+            }
+
             foreach( $post->records as $record ) {
 
                 $record_custom = get_post_custom( $record->ID );
                 $gift_terms = wp_get_object_terms( $record->ID , 'gift', array( 'fields' => 'slugs' ) );
+
+                if ( empty( $post->parents ) ) {
+                    // initial query missed the association, so query again
+                    $post->parents = get_posts( array(
+                          'connected_type' => 'parent_to_child',
+                          'connected_items' => $post,
+                          'nopaging' => true,
+                          'suppress_filters' => false,
+                          'tax_query' => array(
+                                array(
+                                        'taxonomy' => 'role',
+                                        'field' => 'slug',
+                                        'terms' => "$school_year-parent"
+                                )
+                        )
+                    ) );
+                }
 
                 $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr', $post->parents );
 
