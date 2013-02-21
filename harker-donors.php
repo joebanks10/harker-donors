@@ -976,7 +976,7 @@ function custom_record_column_orderby( $vars ) {
 			'orderby' => 'meta_value_num'
 		) );
 	}
-        if ( isset( $vars['orderby'] ) && 'AnnualGivingDonation' == $vars['orderby'] ) {
+    if ( isset( $vars['orderby'] ) && 'AnnualGivingDonation' == $vars['orderby'] ) {
 		$vars = array_merge( $vars, array(
 			'meta_key' => 'ag_amount',
 			'orderby' => 'meta_value_num'
