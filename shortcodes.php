@@ -2510,7 +2510,7 @@ function hkr_dnrs_cc_shortcode($atts) {
     $levels = array(
         array(
             'title' => 'Founding Visionaries',
-            'desc' => '($5,000,000+)',
+            'desc' => '',
             'slug' => 'founding-visionaries'
         ),
         array(
