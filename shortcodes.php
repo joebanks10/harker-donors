@@ -2048,6 +2048,8 @@ function hkr_dnrs_senior_class_gift_shortcode($atts) {
         'school_year' => '2011-12'
     ), $atts ));
 
+    $class_year = hkr_get_end_school_year( $school_year );
+
     $query = new WP_Query( array(
         'post_type' => 'constituent',
         'nopaging' => true,
@@ -2055,7 +2057,7 @@ function hkr_dnrs_senior_class_gift_shortcode($atts) {
                 array(
                         'taxonomy' => 'class_year',
                         'field' => 'slug',
-                        'terms' => '2012'
+                        'terms' => $class_year
                 )
         ),
         'meta_key' => 'lname',
