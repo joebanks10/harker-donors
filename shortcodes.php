@@ -30,7 +30,7 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
             '2012' => 179,
         ); // TODO: Use configuration from Annual Report post
     }
-    else {
+    else if ( $school_year == '2012-13' ) {
         $class_totals = array(
             '2025' => 77,
             '2024' => 78,
@@ -47,7 +47,29 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
             '2013' => 179
         ); 
     }
-    
+    else if ( $school_year == '2013-14' ) {
+        $class_totals = array(
+            '2029' => 34,
+            '2028' => 42,
+            '2027' => 17,
+            '2026' => 81,
+            '2025' => 81,
+            '2024' => 88,
+            '2023' => 107,
+            '2022' => 120,
+            '2021' => 129,
+            '2020' => 172,
+            '2019' => 163,
+            '2018' => 169,
+            '2017' => 191,
+            '2016' => 188,
+            '2015' => 187,
+            '2014' => 176
+        ); 
+    }
+    else {
+        return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
