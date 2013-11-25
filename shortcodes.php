@@ -1566,6 +1566,46 @@ function hkr_dnrs_picnic_shortcode($atts) {
             )
         );
     }
+    else if ( $school_year == '2013-14' ) {
+        $sponsor_levels = array(
+            array(
+                'title' => 'Colorful Cornucopias',
+                'desc' => '($5,000 &amp; above)',
+                'min' => 5000,
+                'max' => 999999
+            ),
+            array(
+                'title' => 'Golden Gourds',
+                'desc' => '($2,500-$4,999)',
+                'min' => 2500,
+                'max' => 4999
+            ),
+            array(
+                'title' => 'Bountiful Bales',
+                'desc' => '($1,500-$2,499)',
+                'min' => 1500,
+                'max' => 2499
+            ),
+            array(
+                'title' => 'Jumping Jack-O\'-Lanterns',
+                'desc' => '($1,000-$1,499)',
+                'min' => 1000,
+                'max' => 1499
+            ),
+            array(
+                'title' => 'Fanciful Farmers',
+                'desc' => '$500-$900',
+                'min' => 500,
+                'max' => 900
+            ),
+            array(
+                'title' => 'Cawing Crows',
+                'desc' => '$250-$499',
+                'min' => 250,
+                'max' => 499
+            )
+        );
+    }
     
 
     $sponsors = array(
@@ -1685,6 +1725,9 @@ function hkr_dnrs_picnic_shortcode($atts) {
         }
 
         foreach( $groups as $group ) {
+
+            if ( $group['title'] == 'Picnic In-Kind Sponsors' && $school_year == '2013-14' ) 
+                continue; // TODO: Fix this you lazy bastard
 
             $list = '';
             $anonymous = 0;
