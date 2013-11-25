@@ -170,7 +170,7 @@ function hkr_dnrs_print_constituent_fields() {
         return $post->ID;
 
     // get custom field values
-    $fields = array( 'fname', 'lname', 'org_name', 'import_id' );
+    $fields = array( 'fname', 'lname', 'org_name', 'import_id', 'cc_rec' );
     $custom = hkr_get_custom_fields( $post->ID, $fields );
     extract( $custom );
 
@@ -211,6 +211,10 @@ function hkr_dnrs_print_constituent_fields() {
             <td><input value="<?php echo $org_name; ?>" type="text" id="org_name" name="org_name" class="widefat" /></td>
         </tr>
         <tr>
+            <th scope="row"><label for="cc_rec">Capital Campaign Recognition</label></th>
+            <td><input type="text" value="<?php echo $cc_rec; ?>" id="cc_rec" name="cc_rec" class="widefat" /></td>
+        </tr>
+        <tr>
             <th scope="row"><label for="import_id">Constituent ID</label>
             <td>
                 <input value="<?php echo $import_id; ?>" type="text" id="import_id" name="import_id" />
@@ -235,7 +239,7 @@ function hkr_dnrs_save_constituent() {
         return;
 
     global $post;
-    $fields = array( 'fname', 'lname', 'org_name', 'import_id' );
+    $fields = array( 'fname', 'lname', 'org_name', 'import_id', 'cc_rec' );
 
     hkr_save_custom_fields( $post->ID, $fields );
 
@@ -425,8 +429,8 @@ add_action( 'init', 'hkr_dnrs_register_record' );
 function hkr_dnrs_register_record() {
 
   $labels = array(
-    'name' => _x('Records', 'post type general name'),
-    'singular_name' => _x('Record', 'post type singular name'),
+    'name' => _x('Annual Records', 'post type general name'),
+    'singular_name' => _x('Annual Record', 'post type singular name'),
     'add_new' => _x('Add New', 'record'),
     'add_new_item' => __('Add New Record'),
     'edit_item' => __('Edit Record'),
@@ -437,7 +441,7 @@ function hkr_dnrs_register_record() {
     'not_found' =>  __('No records found'),
     'not_found_in_trash' => __('No records found in Trash'),
     'parent_item_colon' => '',
-    'menu_name' => 'Records'
+    'menu_name' => 'Annual Records'
   );
 
   $args = array(

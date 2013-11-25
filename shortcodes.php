@@ -30,7 +30,7 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
             '2012' => 179,
         ); // TODO: Use configuration from Annual Report post
     }
-    else {
+    else if ( $school_year == '2012-13' ) {
         $class_totals = array(
             '2025' => 77,
             '2024' => 78,
@@ -47,7 +47,29 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
             '2013' => 179
         ); 
     }
-    
+    else if ( $school_year == '2013-14' ) {
+        $class_totals = array(
+            '2029' => 34,
+            '2028' => 42,
+            '2027' => 17,
+            '2026' => 81,
+            '2025' => 81,
+            '2024' => 88,
+            '2023' => 107,
+            '2022' => 120,
+            '2021' => 129,
+            '2020' => 172,
+            '2019' => 163,
+            '2018' => 169,
+            '2017' => 191,
+            '2016' => 188,
+            '2015' => 187,
+            '2014' => 176
+        ); 
+    }
+    else {
+        return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2498,6 +2520,102 @@ function hkr_dnrs_sandy_shortcode($atts) {
 
 }
 
+/* Sandy Padgett Endowment */
+add_shortcode( 'jason_end', 'hkr_dnrs_jason_shortcode' );
+
+function hkr_dnrs_jason_shortcode($atts) {
+
+    extract($atts = shortcode_atts( array(
+        'school_year' => '2011-12'
+    ), $atts ));
+
+    $query = new WP_Query( array(
+        'post_type' => 'constituent',
+        'nopaging' => true,
+        'tax_query' => array(
+                array(
+                        'taxonomy' => 'role',
+                        'field' => 'slug',
+                        'terms' => "$school_year-record-owner"
+                )
+        ),
+        'meta_key' => 'lname',
+        'orderby' => 'meta_value',
+        'order' => 'ASC',
+        'connected_type' => 'constituents_to_records',
+        'connected_to' => 'any',
+        'connected_query' => array(
+            'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => 'jason-berry-endowment'
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+            ),
+        )
+    ) );
+
+    p2p_type( 'constituents_to_records' )->each_connected( $query, array(
+        'connected_meta' => array( 'role' => 'Record Owner' ),
+        'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => 'jason-berry-endowment'
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+        )
+    ), 'records' );
+
+    $content = '';
+    $content .= '<h2>Endowed Scholarship Fund in Memory of Jason Berry</h2>';
+
+    if ( $query->have_posts() ) {
+
+        $content .= '<ul class="ar-list">';
+        $anonymous = 0;
+
+        while ( $query->have_posts() ) {
+            $query->the_post();
+            global $post;
+
+            foreach( $post->records as $record ) {
+                $record_custom = get_post_custom( $record->ID );
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'end_rec', array($post) );
+
+                if ( $title == 'Anonymous' ) {
+                    $anonymous++;
+                    continue;
+                }
+
+                $content .= '<li>' . $title . '</li>';
+            }
+        }
+
+        if ( $anonymous ) {
+            $content .= "<li>Anonymous ($anonymous)</li>";
+        }
+
+        $content .= '</ul>';
+    }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
+    wp_reset_postdata();
+    return apply_filters( 'hkr_dnrs_list', $content );
+
+}
+
 
 
 /* Nichols Planned Giving */
@@ -2598,14 +2716,117 @@ function hkr_dnrs_nichols_planned_giving_shortcode($atts) {
 
 
 
-/* Capital Giving */
-add_shortcode( 'capital_giving', 'hkr_dnrs_cc_shortcode' );
+/* Capital Giving: Year */
+add_shortcode( 'capital_giving_year', 'hkr_dnrs_cc_year_shortcode' );
 
-function hkr_dnrs_cc_shortcode($atts) {
+function hkr_dnrs_cc_year_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => '2011-12'
     ), $atts ));
+
+    $query = new WP_Query( array(
+        'post_type' => 'constituent',
+        'nopaging' => true,
+        'tax_query' => array(
+                array(
+                        'taxonomy' => 'role',
+                        'field' => 'slug',
+                        'terms' => "$school_year-record-owner"
+                )
+        ),
+        'meta_key' => 'lname',
+        'orderby' => 'meta_value',
+        'order' => 'ASC',
+        'connected_type' => 'constituents_to_records',
+        'connected_to' => 'any',
+        'connected_query' => array(
+            'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => 'capital-giving'
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+            ),
+        )
+    ) );
+
+    p2p_type( 'constituents_to_records' )->each_connected( $query, array(
+        'connected_meta' => array( 'role' => 'Record Owner' ),
+        'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => 'capital-giving'
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+        )
+    ), 'records' );
+
+    $content = '';
+    if ( $query->have_posts() ) {
+
+        $list = '';
+        $anonymous = 0;
+
+        while ( $query->have_posts() ) {
+            $query->the_post();
+            global $post;
+
+            foreach( $post->records as $record ) {
+
+                $record_custom = get_post_custom( $record->ID );
+
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'cc_rec', array($post) );
+
+                if ( $title == 'Anonymous' ) {
+                    $anonymous++;
+                    continue;
+                }
+
+                if ( has_term('capital-giving-bold', 'gift', $record->ID ) ) {
+                    $list .= '<li><strong>' . $title . '</strong></li>';
+                }
+                else {
+                    $list .= '<li>' . $title . '</li>';
+                }
+            }
+        }
+        
+        if ( $anonymous )
+            $list .= "<li>Anonymous ($anonymous)</li>";
+
+        $content .= '<h2>' . $school_year . ' Donors</h2>';
+        if ( !empty($list) ) {
+            $content .= '<ul class="ar-list">' . $list . '</ul>';
+        }
+        else {
+            $content .= '<p>There are no donors at this time.</p>';
+        }
+
+    } 
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+    wp_reset_postdata();
+    return apply_filters( 'hkr_dnrs_list', $content );
+}
+
+
+
+/* Capital Giving: All Time */
+add_shortcode( 'capital_giving', 'hkr_dnrs_cc_shortcode' );
+
+function hkr_dnrs_cc_shortcode($atts) {
 
     $levels = array(
         array(
@@ -2686,58 +2907,25 @@ function hkr_dnrs_cc_shortcode($atts) {
         )
     );
 
-    $query = new WP_Query( array(
-        'post_type' => 'constituent',
-        'nopaging' => true,
-        'tax_query' => array(
-                array(
-                        'taxonomy' => 'role',
-                        'field' => 'slug',
-                        'terms' => "$school_year-record-owner"
-                )
-        ),
-        'meta_key' => 'lname',
-        'orderby' => 'meta_value',
-        'order' => 'ASC',
-        'connected_type' => 'constituents_to_records',
-        'connected_to' => 'any',
-        'connected_query' => array(
+    $content = '';
+    foreach ( $levels as $level ) {
+        $query = new WP_Query( array(
+            'post_type' => 'constituent',
+            'nopaging' => true,
             'tax_query' => array(
                     array(
-                            'taxonomy' => 'gift',
+                            'taxonomy' => 'role',
                             'field' => 'slug',
-                            'terms' => 'capital-giving'
-                    ),
-                    array(
-                            'taxonomy' => 'school_year',
-                            'field' => 'slug',
-                            'terms' => $school_year
+                            'terms' => $level['slug']
                     )
             ),
-        )
-    ) );
+            'meta_key' => 'lname',
+            'orderby' => 'meta_value',
+            'order' => 'ASC'
+        ) );
 
-    p2p_type( 'constituents_to_records' )->each_connected( $query, array(
-        'connected_meta' => array( 'role' => 'Record Owner' ),
-        'tax_query' => array(
-                    array(
-                            'taxonomy' => 'gift',
-                            'field' => 'slug',
-                            'terms' => 'capital-giving'
-                    ),
-                    array(
-                            'taxonomy' => 'school_year',
-                            'field' => 'slug',
-                            'terms' => $school_year
-                    )
-        )
-    ), 'records' );
+        if ( $query->have_posts() ) {
 
-    $content = '';
-    if ( $query->have_posts() ) {
-
-        foreach( $levels as $level ) {
-            
             $list = '';
             $anonymous = 0;
 
@@ -2745,44 +2933,32 @@ function hkr_dnrs_cc_shortcode($atts) {
                 $query->the_post();
                 global $post;
 
-                foreach( $post->records as $record ) {
-                    if ( !has_term( $level['slug'], 'gift', $record->ID ) ) {
-                        continue;
-                    }
+                $title = get_post_meta( $post->ID, 'cc_rec', true );
 
-                    $record_custom = get_post_custom( $record->ID );
-
-                    $title = hkr_dnrs_get_title_by_record( $record_custom, 'cc_rec', array($post) );
-
-                    if ( $title == 'Anonymous' ) {
-                        $anonymous++;
-                        continue;
-                    }
-
-                    if ( has_term('capital-giving-bold', 'gift', $record->ID ) ) {
-                        $list .= '<li><strong>' . $title . '</strong></li>';
-                    }
-                    else {
-                        $list .= '<li>' . $title . '</li>';
-                    }
+                if ( $title == 'Anonymous' ) {
+                    $anonymous++;
+                    continue;
                 }
+
+                $list .= '<li>' . $title . '</li>';
             }
             
             if ( $anonymous )
                 $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '<h2>' . $level['title'] . ' ' . $level['desc'] . '</h2>';
-            if ( !empty($list) ) {
-                $content .= '<ul class="ar-list">' . $list . '</ul>';
-            }
-            else {
-                $content .= '<p>There are no donors at this time.</p>';
-            }
-            
-            $query->rewind_posts();
         }
+
+        $content .= '<h2>' . $level['title'] . ' ' . $level['desc'] . '</h2>';
+        if ( !empty($list) ) {
+            $content .= '<ul class="ar-list">' . $list . '</ul>';
+        }
+        else {
+            $content .= '<p>There are no donors at this time.</p>';
+        }
+
+        wp_reset_postdata();
     }
-    wp_reset_postdata();
+
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
