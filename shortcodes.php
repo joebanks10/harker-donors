@@ -270,8 +270,14 @@ add_shortcode( 'annual_giving', 'hkr_dnrs_ag_shortcode' );
 function hkr_dnrs_ag_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $cached_year = str_replace('-', '_', $school_year);
     $cached_content = get_transient($cached_year . '_ag_levels_cached');
@@ -454,8 +460,14 @@ add_shortcode( 'alumni_lp', 'hkr_dnrs_alumni_lp_shortcode' );
 function hkr_dnrs_alumni_lp_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $groups = array(
         'leaders' => array(
@@ -600,8 +612,14 @@ add_shortcode( 'organizations', 'hkr_dnrs_orgs_shortcode' );
 function hkr_dnrs_orgs_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -674,8 +692,14 @@ add_shortcode( 'faculty_staff', 'hkr_dnrs_fac_staff_shortcode' );
 function hkr_dnrs_fac_staff_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -748,8 +772,14 @@ add_shortcode( 'grandparents', 'hkr_dnrs_gp_shortcode' );
 function hkr_dnrs_gp_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -858,8 +888,14 @@ add_shortcode( 'friends', 'hkr_dnrs_friends_shortcode' );
 function hkr_dnrs_friends_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -957,8 +993,14 @@ add_shortcode( 'honorary_gifts', 'hkr_dnrs_iho_shortcode' );
 function hkr_dnrs_iho_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1065,8 +1107,14 @@ add_shortcode( 'memorial_gifts', 'hkr_dnrs_imo_shortcode' );
 function hkr_dnrs_imo_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1173,8 +1221,14 @@ add_shortcode( 'eagle_clubs', 'hkr_dnrs_eagle_clubs_shortcode' );
 function hkr_dnrs_eagle_clubs_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $clubs = array(
         array(
@@ -1309,8 +1363,14 @@ add_shortcode( 'ag_eagles_club', 'hkr_dnrs_ag_eagles_club_shortcode' );
 function hkr_dnrs_ag_eagles_club_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1423,8 +1483,14 @@ add_shortcode( 'picnic', 'hkr_dnrs_picnic_shortcode' );
 function hkr_dnrs_picnic_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     if ( $school_year == '2011-12' ) {
         $sponsor_levels = array(
@@ -1670,8 +1736,14 @@ add_shortcode( 'fashion_show', 'hkr_dnrs_fs_shortcode' );
 function hkr_dnrs_fs_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $sponsor_levels = array(
         array(
@@ -1867,8 +1939,14 @@ add_shortcode( 'alumni', 'hkr_dnrs_alumni_shortcode' );
 function hkr_dnrs_alumni_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1956,8 +2034,14 @@ add_shortcode( 'alumni_parents', 'hkr_dnrs_alparents_shortcode' );
 function hkr_dnrs_alparents_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2073,8 +2157,14 @@ add_shortcode( 'senior_class_gift', 'hkr_dnrs_senior_class_gift_shortcode' );
 function hkr_dnrs_senior_class_gift_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $class_year = hkr_get_end_school_year( $school_year );
 
@@ -2141,8 +2231,14 @@ add_shortcode( 'spag', 'hkr_dnrs_spag_shortcode' );
 function hkr_dnrs_spag_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2240,8 +2336,14 @@ add_shortcode( 'john_near_end', 'hkr_dnrs_john_near_shortcode' );
 function hkr_dnrs_john_near_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2338,8 +2440,14 @@ add_shortcode( 'sharron_end', 'hkr_dnrs_sharronm_shortcode' );
 function hkr_dnrs_sharronm_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2436,8 +2544,14 @@ add_shortcode( 'sandy_end', 'hkr_dnrs_sandy_shortcode' );
 function hkr_dnrs_sandy_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2532,8 +2646,14 @@ add_shortcode( 'jason_end', 'hkr_dnrs_jason_shortcode' );
 function hkr_dnrs_jason_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2630,8 +2750,14 @@ add_shortcode( 'nichols_planned_giving', 'hkr_dnrs_nichols_planned_giving_shortc
 function hkr_dnrs_nichols_planned_giving_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -2728,8 +2854,14 @@ add_shortcode( 'capital_giving_year', 'hkr_dnrs_cc_year_shortcode' );
 function hkr_dnrs_cc_year_shortcode($atts) {
 
     extract($atts = shortcode_atts( array(
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -3032,7 +3164,7 @@ function hkr_dnrs_get_title_by_org( $cons_custom ) {
 add_filter( 'hkr_dnrs_list', 'hkr_dnrs_print_last_modified', 1 );
 
 function hkr_dnrs_print_last_modified( $content ) {
-    return $content . '<p><b>Last updated:</b> May 31, 2013</p>'; // TODO: make dynamic!
+    return $content . '<p><b>Last updated:</b> Nov 22, 2013</p>'; // TODO: make dynamic!
 }
 
 
