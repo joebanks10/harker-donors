@@ -7,11 +7,17 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
 
     extract($atts = shortcode_atts( array(
         'class_year' => 0,
-        'school_year' => '2011-12'
+        'school_year' => 0
     ), $atts ));
 
-    if ( !isset($class_year) )
+    if ( !$class_year )
         return;
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
 
     if ( $school_year == '2011-12' ) {
         $class_totals = array(
