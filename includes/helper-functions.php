@@ -97,4 +97,22 @@ function hkr_add_term( $term_name, $taxonomy, $parent_id = 0 ) {
     return $term_id;
 }
 
+function hkr_get_school_year( $post_id ) {
+    $root_page = hkr_get_root_page( $post_id );
+    if ( preg_match('/\d\d\d\d-\d\d/', $root_page->post_name, $matches ) ) {
+        return $matches[0];
+    }
+    else {
+        return 0;
+    }
+}
+
+function hkr_get_root_page( $post_id ) {
+    $ancestors = get_post_ancestors( $post_id ); // returns array of ancestors
+    $root_id = ( $ancestors ) ? $ancestors[count($ancestors)-1] : $post_id; // root is last array element
+    $root = get_page( $root_id ); // get root page's data
+
+    return $root;
+}
+
 ?>
