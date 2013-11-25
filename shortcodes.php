@@ -1532,7 +1532,7 @@ function hkr_dnrs_picnic_shortcode($atts) {
             ),
         );
     }
-    else if ( $school_year == '2013-14' ) {
+    else if ( $school_year == '2012-13' ) {
         $sponsor_levels = array(
             array(
                 'title' => 'Best in Show',
@@ -1566,7 +1566,7 @@ function hkr_dnrs_picnic_shortcode($atts) {
             )
         );
     }
-    else if ( $school_year == '2012-13' ) {
+    else if ( $school_year == '2013-14' ) {
         $sponsor_levels = array(
             array(
                 'title' => 'Colorful Cornucopias',
@@ -1725,6 +1725,9 @@ function hkr_dnrs_picnic_shortcode($atts) {
         }
 
         foreach( $groups as $group ) {
+
+            if ( $group['title'] == 'Picnic In-Kind Sponsors' && $school_year == '2013-14' ) 
+                continue; // TODO: Fix this you lazy bastard
 
             $list = '';
             $anonymous = 0;
