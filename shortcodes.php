@@ -285,7 +285,7 @@ function hkr_dnrs_ag_shortcode($atts) {
         return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
-    set_time_limit(120);
+    set_time_limit(300);
 
     $levels = array(
         array(
