@@ -3204,7 +3204,7 @@ function hkr_dnrs_get_title_by_org( $cons_custom ) {
     return $title;
 }
 
-add_filter( 'hkr_dnrs_list', 'hkr_dnrs_print_last_modified', 1 );
+add_filter( 'the_content', 'hkr_dnrs_print_last_modified', 1 );
 
 function hkr_dnrs_print_last_modified( $content ) {
     return $content . '<p><b>Last updated:</b> Jan. 31, 2014</p>'; // TODO: make dynamic!
