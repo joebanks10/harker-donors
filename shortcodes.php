@@ -2683,7 +2683,7 @@ function hkr_dnrs_sandy_shortcode($atts) {
 
 }
 
-/* Sandy Padgett Endowment */
+/* Jason Berry Endowment */
 add_shortcode( 'jason_end', 'hkr_dnrs_jason_shortcode' );
 
 function hkr_dnrs_jason_shortcode($atts) {
@@ -2785,7 +2785,107 @@ function hkr_dnrs_jason_shortcode($atts) {
 
 }
 
+/* Sylvia Harp Endowment */
+add_shortcode( 'sylvia_end', 'hkr_dnrs_sylvia_shortcode' );
 
+function hkr_dnrs_sylvia_shortcode($atts) {
+
+    extract($atts = shortcode_atts( array(
+        'school_year' => 0
+    ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
+
+    $query = new WP_Query( array(
+        'post_type' => 'constituent',
+        'nopaging' => true,
+        'tax_query' => array(
+                array(
+                        'taxonomy' => 'role',
+                        'field' => 'slug',
+                        'terms' => "$school_year-record-owner"
+                )
+        ),
+        'meta_key' => 'lname',
+        'orderby' => 'meta_value',
+        'order' => 'ASC',
+        'connected_type' => 'constituents_to_records',
+        'connected_to' => 'any',
+        'connected_query' => array(
+            'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => 'sylvia-harp-endowment'
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+            ),
+        )
+    ) );
+
+    p2p_type( 'constituents_to_records' )->each_connected( $query, array(
+        'connected_meta' => array( 'role' => 'Record Owner' ),
+        'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => 'sylvia-harp-endowment'
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+        )
+    ), 'records' );
+
+    $content = '';
+    $content .= '<h2>Endowed Scholarship Fund in Memory of Sylvia Harp</h2>';
+
+    if ( $query->have_posts() ) {
+
+        $content .= '<ul class="ar-list">';
+        $anonymous = 0;
+
+        while ( $query->have_posts() ) {
+            $query->the_post();
+            global $post;
+
+            foreach( $post->records as $record ) {
+                $record_custom = get_post_custom( $record->ID );
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'end_rec', array($post) );
+
+                if ( $title == 'Anonymous' ) {
+                    $anonymous++;
+                    continue;
+                }
+
+                $content .= '<li>' . $title . '</li>';
+            }
+        }
+
+        if ( $anonymous ) {
+            $content .= "<li>Anonymous ($anonymous)</li>";
+        }
+
+        $content .= '</ul>';
+    }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
+    wp_reset_postdata();
+    return apply_filters( 'hkr_dnrs_list', $content );
+
+}
 
 /* Nichols Planned Giving */
 add_shortcode( 'nichols_planned_giving', 'hkr_dnrs_nichols_planned_giving_shortcode' );
