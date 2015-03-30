@@ -74,7 +74,7 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
         ); 
     }
     else {
-        return;
+        $class_totals = array();
     }
 
     $query = new WP_Query( array(
