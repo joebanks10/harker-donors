@@ -150,34 +150,40 @@ class HarkerAnnualSettings {
             ),
             '2013-14' => array(
                 array(
-                    'title' => 'Best in Show',
-                    'desc' => '($5,000+)',
+                    'title' => 'Colorful Cornucopias',
+                    'desc' => '($5,000 &amp; above)',
                     'min' => 5000,
                     'max' => 999999
                 ),
                 array(
-                    'title' => 'Great Growlers',
-                    'desc' => '($2,500+)',
+                    'title' => 'Golden Gourds',
+                    'desc' => '($2,500-$4,999)',
                     'min' => 2500,
                     'max' => 4999
                 ),
                 array(
-                    'title' => 'High "Heelers"',
-                    'desc' => '($1,200+)',
+                    'title' => 'Bountiful Bales',
+                    'desc' => '($1,500-$2,499)',
                     'min' => 1500,
                     'max' => 2499
                 ),
                 array(
-                    'title' => 'Harker Barkers',
-                    'desc' => '($600+)',
-                    'min' => 600,
-                    'max' => 1199
+                    'title' => 'Jumping Jack-O\'-Lanterns',
+                    'desc' => '($1,000-$1,499)',
+                    'min' => 1000,
+                    'max' => 1499
                 ),
                 array(
-                    'title' => 'Doggie Diggers',
-                    'desc' => '($300+)',
-                    'min' => 300,
-                    'max' => 599
+                    'title' => 'Fanciful Farmers',
+                    'desc' => '$500-$900',
+                    'min' => 500,
+                    'max' => 900
+                ),
+                array(
+                    'title' => 'Cawing Crows',
+                    'desc' => '$250-$499',
+                    'min' => 250,
+                    'max' => 499
                 )
             )
         );
