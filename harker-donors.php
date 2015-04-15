@@ -9,6 +9,7 @@ Author: Joe Banks
 define('HKR_DNRS_PATH', plugin_dir_path(__FILE__) );
 define('HKR_DNRS_URL', plugin_dir_url(__FILE__) );
 
+require(HKR_DNRS_PATH . 'includes/settings.php');
 require(HKR_DNRS_PATH . 'includes/helper-functions.php');
 require(HKR_DNRS_PATH . 'shortcodes.php');
 
