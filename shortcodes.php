@@ -19,62 +19,10 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
         if ( !$school_year ) return;
     }
 
-    if ( $school_year == '2011-12' ) {
-        $class_totals = array(
-            '2024' => 81,
-            '2023' => 84,
-            '2022' => 89,
-            '2021' => 104,
-            '2020' => 118,
-            '2019' => 131,
-            '2018' => 164,
-            '2017' => 168,
-            '2016' => 167,
-            '2015' => 191,
-            '2014' => 183,
-            '2013' => 186,
-            '2012' => 179,
-        ); // TODO: Use configuration from Annual Report post
-    }
-    else if ( $school_year == '2012-13' ) {
-        $class_totals = array(
-            '2025' => 77,
-            '2024' => 78,
-            '2023' => 86,
-            '2022' => 99,
-            '2021' => 108,
-            '2020' => 121,
-            '2019' => 163,
-            '2018' => 162,
-            '2017' => 170,
-            '2016' => 188,
-            '2015' => 186,
-            '2014' => 174,
-            '2013' => 179
-        ); 
-    }
-    else if ( $school_year == '2013-14' ) {
-        $class_totals = array(
-            '2029' => 34,
-            '2028' => 42,
-            '2027' => 17,
-            '2026' => 81,
-            '2025' => 81,
-            '2024' => 88,
-            '2023' => 107,
-            '2022' => 120,
-            '2021' => 129,
-            '2020' => 172,
-            '2019' => 163,
-            '2018' => 169,
-            '2017' => 191,
-            '2016' => 188,
-            '2015' => 187,
-            '2014' => 176
-        ); 
-    }
-    else {
-        $class_totals = array();
+    $class_totals = $hkr_annual_settings->get_class_totals($school_year);
+
+    if ( !$class_totals ) {
+        return;
     }
 
     $query = new WP_Query( array(
@@ -1492,142 +1440,14 @@ function hkr_dnrs_picnic_shortcode($atts) {
         if ( !$school_year ) return;
     }
 
-    if ( $school_year == '2011-12' ) {
-        $sponsor_levels = array(
-            array(
-                'title' => 'Towering Top Hats',
-                'desc' => '($5,000+)',
-                'min' => 5000,
-                'max' => 999999
-            ),
-            array(
-                'title' => 'Stately Stetsons',
-                'desc' => '($2,500+)',
-                'min' => 2500,
-                'max' => 4999
-            ),
-            array(
-                'title' => 'Fancy Fedoras',
-                'desc' => '($1,500+)',
-                'min' => 1500,
-                'max' => 2499
-            ),
-            array(
-                'title' => 'Dashing Derbies',
-                'desc' => '($1,000+)',
-                'min' => 1000,
-                'max' => 1499
-            ),
-            array(
-                'title' => 'Beautiful Bonnets',
-                'desc' => '($500+)',
-                'min' => 500,
-                'max' => 999
-            ),
-            array(
-                'title' => 'Teenie Beanies',
-                'desc' => '($250+)',
-                'min' => 250,
-                'max' => 499
-            ),
-        );
-    }
-    else if ( $school_year == '2012-13' ) {
-        $sponsor_levels = array(
-            array(
-                'title' => 'Best in Show',
-                'desc' => '($5,000+)',
-                'min' => 5000,
-                'max' => 999999
-            ),
-            array(
-                'title' => 'Great Growlers',
-                'desc' => '($2,500+)',
-                'min' => 2500,
-                'max' => 4999
-            ),
-            array(
-                'title' => 'High "Heelers"',
-                'desc' => '($1,200+)',
-                'min' => 1500,
-                'max' => 2499
-            ),
-            array(
-                'title' => 'Harker Barkers',
-                'desc' => '($600+)',
-                'min' => 600,
-                'max' => 1199
-            ),
-            array(
-                'title' => 'Doggie Diggers',
-                'desc' => '($300+)',
-                'min' => 300,
-                'max' => 599
-            )
-        );
-    }
-    else if ( $school_year == '2013-14' ) {
-        $sponsor_levels = array(
-            array(
-                'title' => 'Colorful Cornucopias',
-                'desc' => '($5,000 &amp; above)',
-                'min' => 5000,
-                'max' => 999999
-            ),
-            array(
-                'title' => 'Golden Gourds',
-                'desc' => '($2,500-$4,999)',
-                'min' => 2500,
-                'max' => 4999
-            ),
-            array(
-                'title' => 'Bountiful Bales',
-                'desc' => '($1,500-$2,499)',
-                'min' => 1500,
-                'max' => 2499
-            ),
-            array(
-                'title' => 'Jumping Jack-O\'-Lanterns',
-                'desc' => '($1,000-$1,499)',
-                'min' => 1000,
-                'max' => 1499
-            ),
-            array(
-                'title' => 'Fanciful Farmers',
-                'desc' => '$500-$900',
-                'min' => 500,
-                'max' => 900
-            ),
-            array(
-                'title' => 'Cawing Crows',
-                'desc' => '$250-$499',
-                'min' => 250,
-                'max' => 499
-            )
-        );
-    }
-    
-
+    $sponsor_levels = $hkr_annual_settings->get_picnic_sponsor_levels($school_year);
     $sponsors = array(
         'title' => 'Picnic Sponsors',
         'slug' => 'picnic-sponsor',
         'levels' => $sponsor_levels
     );
 
-    $groups = array(
-        array(
-            'title' => 'Picnic In-Kind Sponsors',
-            'slug' => 'picnic-in-kind-sponsor'
-        ),
-        array(
-            'title' => 'Picnic Cash Donors',
-            'slug' => 'picnic-cash-donor'
-        ),
-        array(
-            'title' => 'Picnic Teacher Packages',
-            'slug' => 'picnic-teacher-pack'
-        )
-    );
+    $groups = $hkr_annual_settings->get_picnic_giving_groups($school_year);
 
     $query = new WP_Query( array(
         'post_type' => 'constituent',
@@ -1725,9 +1545,6 @@ function hkr_dnrs_picnic_shortcode($atts) {
         }
 
         foreach( $groups as $group ) {
-
-            if ( $group['title'] == 'Picnic In-Kind Sponsors' && $school_year == '2013-14' ) 
-                continue; // TODO: Fix this you lazy bastard
 
             $list = '';
             $anonymous = 0;
