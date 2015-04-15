@@ -5,6 +5,8 @@ add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
 
 function hkr_dnrs_class_year_shortcode( $atts ) {
 
+    global $hkr_annual_settings;
+
     extract($atts = shortcode_atts( array(
         'class_year' => 0,
         'school_year' => 0
@@ -1429,6 +1431,8 @@ function hkr_dnrs_ag_eagles_club_shortcode($atts) {
 add_shortcode( 'picnic', 'hkr_dnrs_picnic_shortcode' );
 
 function hkr_dnrs_picnic_shortcode($atts) {
+
+    global $hkr_annual_settings;
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
