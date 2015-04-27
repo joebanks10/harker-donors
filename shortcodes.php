@@ -3130,7 +3130,14 @@ function hkr_dnrs_get_title_by_org( $cons_custom ) {
 add_filter( 'the_content', 'hkr_dnrs_print_last_modified', 1 );
 
 function hkr_dnrs_print_last_modified( $content ) {
-    return $content . '<p><b>Last updated:</b> May 31, 2014</p>'; // TODO: make dynamic!
+    $options = get_option( 'hkr_donors_options' );
+    $date = ( isset($options['last_modified']) ) ? $options['last_modified'] : '';
+
+    if ( ! $date ) {
+        return $content;
+    }
+
+    return $content . '<p><b>Last updated:</b> ' . $date . '</p>';
 }
 
 
