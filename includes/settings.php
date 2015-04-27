@@ -332,7 +332,8 @@ class HarkerAnnualSettings {
 
 if( is_admin() ) {
     $hkr_donors_settings_page = new HarkerDonorsSettingsPage();
-    $hkr_annual_settings = new HarkerAnnualSettings();  
 } 
+
+$hkr_annual_settings = new HarkerAnnualSettings();  
 
 ?>
