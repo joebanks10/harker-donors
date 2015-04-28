@@ -115,4 +115,21 @@ function hkr_get_root_page( $post_id ) {
     return $root;
 }
 
+
+function hkr_get_cached_content($shortcode, $school_year = 'all') {
+    $cached_year = str_replace('-', '_', $school_year);
+    $cached_content = get_transient($cached_year . '_' . $shortcode);
+    
+    if( $cached_content ) {
+        return $cached_content;
+    } else {
+        return false;
+    }
+}
+
+function hkr_set_cached_content($shortcode, $school_year = 'all', $content) {
+    $cached_year = str_replace('-', '_', $school_year);
+    set_transient($cached_year . '_' . $shortcode, $content, 60 * 60 * 24 * 30 ); // 30 days
+}
+
 ?>

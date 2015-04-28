@@ -2,8 +2,7 @@
 
 /* Annual Giving Class Years */
 add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
-
-function hkr_dnrs_class_year_shortcode( $atts ) {
+function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
     global $hkr_annual_settings;
 
@@ -19,6 +18,11 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $class_totals = $hkr_annual_settings->get_class_totals($school_year);
@@ -209,15 +213,13 @@ function hkr_dnrs_class_year_shortcode( $atts ) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
-
 /* Annual Giving Levels */
 add_shortcode( 'annual_giving', 'hkr_dnrs_ag_shortcode' );
-
-function hkr_dnrs_ag_shortcode($atts) {
+function hkr_dnrs_ag_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -229,9 +231,13 @@ function hkr_dnrs_ag_shortcode($atts) {
         if ( !$school_year ) return;
     }
 
-    $cached_year = str_replace('-', '_', $school_year);
-    $cached_content = get_transient($cached_year . '_ag_levels_cached');
-    if( $cached_content ) {
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
         return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
@@ -398,16 +404,13 @@ function hkr_dnrs_ag_shortcode($atts) {
     }
 
     wp_reset_postdata();
-    set_transient($cached_year . '_ag_levels_cached', $content, 60 * 60 * 24 );
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
-
 /* Alumni Leaders & Pacesetters */
 add_shortcode( 'alumni_lp', 'hkr_dnrs_alumni_lp_shortcode' );
-
-function hkr_dnrs_alumni_lp_shortcode($atts) {
+function hkr_dnrs_alumni_lp_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -417,6 +420,11 @@ function hkr_dnrs_alumni_lp_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $groups = array(
@@ -551,15 +559,13 @@ function hkr_dnrs_alumni_lp_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
-
 /* Organizations */
 add_shortcode( 'organizations', 'hkr_dnrs_orgs_shortcode' );
-
-function hkr_dnrs_orgs_shortcode($atts) {
+function hkr_dnrs_orgs_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -569,6 +575,11 @@ function hkr_dnrs_orgs_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -630,16 +641,14 @@ function hkr_dnrs_orgs_shortcode($atts) {
         $content .= '<p>There are no donors at the time.';
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Faculty & Staff */
 add_shortcode( 'faculty_staff', 'hkr_dnrs_fac_staff_shortcode' );
-
-function hkr_dnrs_fac_staff_shortcode($atts) {
+function hkr_dnrs_fac_staff_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -649,6 +658,11 @@ function hkr_dnrs_fac_staff_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -710,16 +724,14 @@ function hkr_dnrs_fac_staff_shortcode($atts) {
         $content .= '<p>There are no donors at the time.';
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Grandparents */
 add_shortcode( 'grandparents', 'hkr_dnrs_gp_shortcode' );
-
-function hkr_dnrs_gp_shortcode($atts) {
+function hkr_dnrs_gp_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -729,6 +741,11 @@ function hkr_dnrs_gp_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -826,16 +843,14 @@ function hkr_dnrs_gp_shortcode($atts) {
         $content .= '<p>There are no donors at the time.';
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Friends */
 add_shortcode( 'friends', 'hkr_dnrs_friends_shortcode' );
-
-function hkr_dnrs_friends_shortcode($atts) {
+function hkr_dnrs_friends_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -845,6 +860,11 @@ function hkr_dnrs_friends_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -931,16 +951,14 @@ function hkr_dnrs_friends_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Honorary Gifts */
 add_shortcode( 'honorary_gifts', 'hkr_dnrs_iho_shortcode' );
-
-function hkr_dnrs_iho_shortcode($atts) {
+function hkr_dnrs_iho_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -950,6 +968,11 @@ function hkr_dnrs_iho_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -1045,16 +1068,14 @@ function hkr_dnrs_iho_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Memorial Gifts */
 add_shortcode( 'memorial_gifts', 'hkr_dnrs_imo_shortcode' );
-
-function hkr_dnrs_imo_shortcode($atts) {
+function hkr_dnrs_imo_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -1064,6 +1085,11 @@ function hkr_dnrs_imo_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -1159,16 +1185,14 @@ function hkr_dnrs_imo_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Eagle Clubs */
 add_shortcode( 'eagle_clubs', 'hkr_dnrs_eagle_clubs_shortcode' );
-
-function hkr_dnrs_eagle_clubs_shortcode($atts) {
+function hkr_dnrs_eagle_clubs_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -1178,6 +1202,11 @@ function hkr_dnrs_eagle_clubs_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $clubs = array(
@@ -1303,14 +1332,13 @@ function hkr_dnrs_eagle_clubs_shortcode($atts) {
         }
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
 /* Eagle's Nest Club */
 add_shortcode( 'ag_eagles_club', 'hkr_dnrs_ag_eagles_club_shortcode' );
-
-function hkr_dnrs_ag_eagles_club_shortcode($atts) {
+function hkr_dnrs_ag_eagles_club_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -1320,6 +1348,11 @@ function hkr_dnrs_ag_eagles_club_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -1421,16 +1454,14 @@ function hkr_dnrs_ag_eagles_club_shortcode($atts) {
         $content .= '<p>There are no donors at this time.</p>';
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Picnic */
 add_shortcode( 'picnic', 'hkr_dnrs_picnic_shortcode' );
-
-function hkr_dnrs_picnic_shortcode($atts) {
+function hkr_dnrs_picnic_shortcode($atts, $sc_content, $shortcode) {
 
     global $hkr_annual_settings;
 
@@ -1442,6 +1473,11 @@ function hkr_dnrs_picnic_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $sponsor_levels = $hkr_annual_settings->get_picnic_sponsor_levels($school_year);
@@ -1589,15 +1625,13 @@ function hkr_dnrs_picnic_shortcode($atts) {
         }
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
-
 /* Fashion Show */
 add_shortcode( 'fashion_show', 'hkr_dnrs_fs_shortcode' );
-
-function hkr_dnrs_fs_shortcode($atts) {
+function hkr_dnrs_fs_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -1607,6 +1641,11 @@ function hkr_dnrs_fs_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $sponsor_levels = array(
@@ -1792,15 +1831,13 @@ function hkr_dnrs_fs_shortcode($atts) {
         }
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
-
 /* Alumni */
 add_shortcode( 'alumni', 'hkr_dnrs_alumni_shortcode' );
-
-function hkr_dnrs_alumni_shortcode($atts) {
+function hkr_dnrs_alumni_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -1810,6 +1847,11 @@ function hkr_dnrs_alumni_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -1887,15 +1929,13 @@ function hkr_dnrs_alumni_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
-
 /* Alumni Parents */
 add_shortcode( 'alumni_parents', 'hkr_dnrs_alparents_shortcode' );
-
-function hkr_dnrs_alparents_shortcode($atts) {
+function hkr_dnrs_alparents_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -1905,6 +1945,11 @@ function hkr_dnrs_alparents_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2009,16 +2054,14 @@ function hkr_dnrs_alparents_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Senior Class Gift */
 add_shortcode( 'senior_class_gift', 'hkr_dnrs_senior_class_gift_shortcode' );
-
-function hkr_dnrs_senior_class_gift_shortcode($atts) {
+function hkr_dnrs_senior_class_gift_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2028,6 +2071,11 @@ function hkr_dnrs_senior_class_gift_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $class_year = hkr_get_end_school_year( $school_year );
@@ -2083,16 +2131,14 @@ function hkr_dnrs_senior_class_gift_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Senior Parent Appreciation Gift */
 add_shortcode( 'spag', 'hkr_dnrs_spag_shortcode' );
-
-function hkr_dnrs_spag_shortcode($atts) {
+function hkr_dnrs_spag_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2102,6 +2148,11 @@ function hkr_dnrs_spag_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2188,16 +2239,14 @@ function hkr_dnrs_spag_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* John Near Excellence in History Education Endowment */
 add_shortcode( 'john_near_end', 'hkr_dnrs_john_near_shortcode' );
-
-function hkr_dnrs_john_near_shortcode($atts) {
+function hkr_dnrs_john_near_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2207,6 +2256,11 @@ function hkr_dnrs_john_near_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2292,16 +2346,14 @@ function hkr_dnrs_john_near_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Sharron Mittelstet Endowment */
 add_shortcode( 'sharron_end', 'hkr_dnrs_sharronm_shortcode' );
-
-function hkr_dnrs_sharronm_shortcode($atts) {
+function hkr_dnrs_sharronm_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2311,6 +2363,11 @@ function hkr_dnrs_sharronm_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2396,16 +2453,14 @@ function hkr_dnrs_sharronm_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Sandy Padgett Endowment */
 add_shortcode( 'sandy_end', 'hkr_dnrs_sandy_shortcode' );
-
-function hkr_dnrs_sandy_shortcode($atts) {
+function hkr_dnrs_sandy_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2415,6 +2470,11 @@ function hkr_dnrs_sandy_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2500,14 +2560,14 @@ function hkr_dnrs_sandy_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
 /* Jason Berry Endowment */
 add_shortcode( 'jason_end', 'hkr_dnrs_jason_shortcode' );
-
-function hkr_dnrs_jason_shortcode($atts) {
+function hkr_dnrs_jason_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2517,6 +2577,11 @@ function hkr_dnrs_jason_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2602,14 +2667,14 @@ function hkr_dnrs_jason_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
 /* Sylvia Harp Endowment */
 add_shortcode( 'sylvia_end', 'hkr_dnrs_sylvia_shortcode' );
-
-function hkr_dnrs_sylvia_shortcode($atts) {
+function hkr_dnrs_sylvia_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2619,6 +2684,11 @@ function hkr_dnrs_sylvia_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2704,14 +2774,14 @@ function hkr_dnrs_sylvia_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
 /* Nichols Planned Giving */
 add_shortcode( 'nichols_planned_giving', 'hkr_dnrs_nichols_planned_giving_shortcode' );
-
-function hkr_dnrs_nichols_planned_giving_shortcode($atts) {
+function hkr_dnrs_nichols_planned_giving_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2721,6 +2791,11 @@ function hkr_dnrs_nichols_planned_giving_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2806,16 +2881,14 @@ function hkr_dnrs_nichols_planned_giving_shortcode($atts) {
     }
 
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }
 
-
-
 /* Capital Giving: Year */
 add_shortcode( 'capital_giving_year', 'hkr_dnrs_cc_year_shortcode' );
-
-function hkr_dnrs_cc_year_shortcode($atts) {
+function hkr_dnrs_cc_year_shortcode($atts, $sc_content, $shortcode) {
 
     extract($atts = shortcode_atts( array(
         'school_year' => 0
@@ -2825,6 +2898,11 @@ function hkr_dnrs_cc_year_shortcode($atts) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $query = new WP_Query( array(
@@ -2920,15 +2998,18 @@ function hkr_dnrs_cc_year_shortcode($atts) {
         $content .= '<p>There are no donors at this time.</p>';
     }
     wp_reset_postdata();
+    hkr_set_cached_content($shortcode, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
-
 /* Capital Giving: All Time */
 add_shortcode( 'capital_giving', 'hkr_dnrs_cc_shortcode' );
+function hkr_dnrs_cc_shortcode($atts, $sc_content, $shortcode) {
 
-function hkr_dnrs_cc_shortcode($atts) {
+    $cached_content = hkr_get_cached_content( $shortcode );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
+    }
 
     $levels = array(
         array(
@@ -3061,10 +3142,11 @@ function hkr_dnrs_cc_shortcode($atts) {
         wp_reset_postdata();
     }
 
+    hkr_set_cached_content($shortcode, '', $content); // school year is n/a
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
-
+/* Helper Functions */
 
 function hkr_dnrs_get_title_by_record( $record_custom, $recognition, $constituents = array() ) {
     $title = '';
