@@ -20,7 +20,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         if ( !$school_year ) return;
     }
 
-    $cached_content = hkr_get_cached_content( $shortcode, $school_year );
+    $cached_content = hkr_get_cached_content( $shortcode, $school_year . '_' . $class_year );
     if ( $cached_content ) {
         return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
@@ -213,7 +213,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
     }
 
     wp_reset_postdata();
-    hkr_set_cached_content($shortcode, $school_year, $content);
+    hkr_set_cached_content($shortcode, $school_year . '_' . $class_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
