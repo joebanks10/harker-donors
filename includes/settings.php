@@ -316,7 +316,7 @@ class HarkerAnnualSettings {
         if ( isset($this->picnic_sponsor_levels[$school_year]) ) {
             return $this->picnic_sponsor_levels[$school_year];
         } else {
-            return $this->picnic_sponsor_levels['2013-14']; // levels are standardized at this point (hopefully)
+            return array(); // no sponsor levels available
         }
     }
 

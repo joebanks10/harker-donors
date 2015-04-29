@@ -1540,48 +1540,50 @@ function hkr_dnrs_picnic_shortcode($atts, $sc_content, $shortcode) {
     $content = '';
     if ( $query->have_posts() ) {
 
-        $content .= '<h2>' . $sponsors['title'] . '</h2>';
-        foreach( $sponsors['levels'] as $level ) {
-            $list = '';
-            $anonymous = 0;
-            while ( $query->have_posts() ) {
-                $query->the_post();
-                global $post;
+        if ( count($sponsors['levels']) > 0 ) {
+            $content .= '<h2>' . $sponsors['title'] . '</h2>';
+            foreach( $sponsors['levels'] as $level ) {
+                $list = '';
+                $anonymous = 0;
+                while ( $query->have_posts() ) {
+                    $query->the_post();
+                    global $post;
 
-                foreach( $post->records as $record ) {
-                    if ( !has_term( $sponsors['slug'], 'gift', $record->ID ) ) {
-                        continue;
+                    foreach( $post->records as $record ) {
+                        if ( !has_term( $sponsors['slug'], 'gift', $record->ID ) ) {
+                            continue;
+                        }
+
+                        $record_custom = get_post_custom( $record->ID );
+
+                        if ( $record_custom['picnic_amount'][0] < $level['min'] || $record_custom['picnic_amount'][0] > $level['max'] ) {
+                            continue;
+                        }
+
+                        $title = hkr_dnrs_get_title_by_record( $record_custom, 'picnic_rec', array($post) );
+
+                        if ( $title == 'Anonymous' ) {
+                            $anonymous++;
+                            continue;
+                        }
+
+                        $list .= '<li>' . $title . '</li>';
                     }
-
-                    $record_custom = get_post_custom( $record->ID );
-
-                    if ( $record_custom['picnic_amount'][0] < $level['min'] || $record_custom['picnic_amount'][0] > $level['max'] ) {
-                        continue;
-                    }
-
-                    $title = hkr_dnrs_get_title_by_record( $record_custom, 'picnic_rec', array($post) );
-
-                    if ( $title == 'Anonymous' ) {
-                        $anonymous++;
-                        continue;
-                    }
-
-                    $list .= '<li>' . $title . '</li>';
                 }
-            }
 
-            if ( $anonymous )
-                $list .= "<li>Anonymous ($anonymous)</li>";
+                if ( $anonymous )
+                    $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '<h3>' . $level['title'] . ' '. $level['desc'] . '</h3>';
-            if ( !empty($list) ) {
-                $content .= '<ul class="ar-list">' . $list . '</ul>';
+                $content .= '<h3>' . $level['title'] . ' '. $level['desc'] . '</h3>';
+                if ( !empty($list) ) {
+                    $content .= '<ul class="ar-list">' . $list . '</ul>';
+                }
+                else {
+                    $content .= '<p>There are no donors at this time.</p>';
+                }
+                
+                $query->rewind_posts();
             }
-            else {
-                $content .= '<p>There are no donors at this time.</p>';
-            }
-            
-            $query->rewind_posts();
         }
 
         foreach( $groups as $group ) {
