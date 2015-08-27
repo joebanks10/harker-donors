@@ -162,11 +162,11 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
                 $icon = ' ';
                 if ( in_array('senior-brick', $gift_terms ) ) {
-                    $icon .= '<i class="icon-tint"></i>';
+                    $icon .= '<i class="fa fa-tint"></i>';
                     $has_snr_brick = true;
                 }
                 if ( in_array('senior-parent-appreciation-gift', $gift_terms ) ) {
-                    $icon .= '<i class="icon-star"></i>';
+                    $icon .= '<i class="fa fa-star"></i>';
                     $has_spag = true;
                 }
 
@@ -199,10 +199,10 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
             if ( $has_snr_brick || $has_spag ) {
                 $content .= '<p>';
                 if ( $has_snr_brick ) {
-                    $content .= '<em class="icon-tint"></em> Graduating seniors honored with inscribed name brick<br />';
+                    $content .= '<em class="fa fa-tint"></em> Graduating seniors honored with inscribed name brick<br />';
                 }
                 if ( $has_spag ) {
-                    $content .= '<em class="icon-star"></em> Family participated in the Senior Parent Appreciation Gift';
+                    $content .= '<em class="fa fa-star"></em> Family participated in the Senior Parent Appreciation Gift';
                 }
                 $content .= '</p>';
             }
