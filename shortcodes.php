@@ -3020,9 +3020,9 @@ function hkr_dnrs_cc_shortcode($atts, $sc_content, $shortcode) {
             'slug' => 'founding-visionaries'
         ),
         array(
-            'title' => 'Angel Investors',
+            'title' => 'Leading Visionaries',
             'desc' => '($2,500,000+)',
-            'slug' => 'angel-investors'
+            'slug' => 'leading-visionaries'
         ),
         array(
             'title' => 'Visionaries',
