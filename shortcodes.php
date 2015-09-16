@@ -74,7 +74,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
                     array(
                             'taxonomy' => 'gift',
                             'field' => 'slug',
-                            'terms' => 'annual-giving'
+                            'terms' => array('annual-giving', 'capital-giving')
                     ),
                     array(
                             'taxonomy' => 'school_year',
