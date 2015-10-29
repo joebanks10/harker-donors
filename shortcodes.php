@@ -25,9 +25,9 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
-    $class_totals = $hkr_annual_settings->get_class_totals($school_year);
+    $class_total = $hkr_annual_settings->get_class_total($class_year, $school_year);
 
-    if ( !$class_totals ) {
+    if ( !$class_total ) {
         return;
     }
 
@@ -178,17 +178,9 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
             $class_count++;
         }
 
-        if ( isset($class_totals[$class_year]) ) {
-            $percent = round( $class_count/$class_totals[$class_year] * 100 );
-            if ( $has_pledge ) {
-                $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave/pledged.</h2>";
-            }
-            else {
-                $stat = "<h2>$percent% ($class_count out of {$class_totals[$class_year]}) gave.</h2>";
-            }
-        
-            $content .= $stat;
-        }
+        $percent = round( $class_count/$class_total * 100 );
+        $stat = ( $has_pledge ) ? "<h2>$percent% ($class_count out of {$class_total}) gave/pledged.</h2>" : "<h2>$percent% ($class_count out of {$class_total}) gave.</h2>";   
+        $content .= $stat;
 
         if ( $has_pledge ) {
             $content .= '<p>Gave | <span class="ag-pledge">Pledged</span></p>';
@@ -2777,6 +2769,122 @@ function hkr_dnrs_sylvia_shortcode($atts, $sc_content, $shortcode) {
 
     wp_reset_postdata();
     hkr_set_cached_content($shortcode, $school_year, $content);
+    return apply_filters( 'hkr_dnrs_list', $content );
+
+}
+
+/* Endowment Gifts */
+add_shortcode( 'endowment', 'hkr_dnrs_endowment_shortcode' );
+function hkr_dnrs_endowment_shortcode($atts, $sc_content, $shortcode) {
+
+    extract($atts = shortcode_atts( array(
+        'school_year' => 0,
+        'slug' => 0
+    ), $atts ));
+
+    if ( !$school_year ) {
+        global $post;
+        $school_year = hkr_get_school_year( $post->ID );
+        if ( !$school_year ) return;
+    }
+
+    if ( !$slug ) {
+        return;
+    } else {
+        $endowment_slug = $slug;
+    }
+
+    $cached_content = hkr_get_cached_content( $shortcode . '_' . $endowment_slug, $school_year );
+    if ( $cached_content ) {
+        return apply_filters( 'hkr_dnrs_list', $cached_content );
+    }
+
+    $query = new WP_Query( array(
+        'post_type' => 'constituent',
+        'nopaging' => true,
+        'tax_query' => array(
+                array(
+                        'taxonomy' => 'role',
+                        'field' => 'slug',
+                        'terms' => "$school_year-record-owner"
+                )
+        ),
+        'meta_key' => 'lname',
+        'orderby' => 'meta_value',
+        'order' => 'ASC',
+        'connected_type' => 'constituents_to_records',
+        'connected_to' => 'any',
+        'connected_query' => array(
+            'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => $endowment_slug
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+            ),
+        )
+    ) );
+
+    p2p_type( 'constituents_to_records' )->each_connected( $query, array(
+        'connected_meta' => array( 'role' => 'Record Owner' ),
+        'tax_query' => array(
+                    array(
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => $endowment_slug
+                    ),
+                    array(
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
+                    )
+        )
+    ), 'records' );
+
+    $endowment_term = get_term_by( 'slug', $endowment_slug, 'gift' );
+
+    $content = '';
+    $content .= '<h2>' . $endowment_term->name . '</h2>';
+
+    if ( $query->have_posts() ) {
+
+        $content .= '<ul class="ar-list">';
+        $anonymous = 0;
+
+        while ( $query->have_posts() ) {
+            $query->the_post();
+            global $post;
+
+            foreach( $post->records as $record ) {
+                $record_custom = get_post_custom( $record->ID );
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'end_rec', array($post) );
+
+                if ( $title == 'Anonymous' ) {
+                    $anonymous++;
+                    continue;
+                }
+
+                $content .= '<li>' . $title . '</li>';
+            }
+        }
+
+        if ( $anonymous ) {
+            $content .= "<li>Anonymous ($anonymous)</li>";
+        }
+
+        $content .= '</ul>';
+    }
+    else {
+        $content .= '<p>There are no donors at this time.</p>';
+    }
+
+    wp_reset_postdata();
+    hkr_set_cached_content($shortcode . '_' . $endowment_slug, $school_year, $content);
     return apply_filters( 'hkr_dnrs_list', $content );
 
 }

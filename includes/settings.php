@@ -1,105 +1,9 @@
 <?php
 
-// Global admin settings for Harker Donors plugin
-class HarkerDonorsSettingsPage {
-
-    // stores option values
-    private $options;
-
-    public function __construct() {
-        add_action( 'admin_menu', array( $this, 'add_page' ) );
-        add_action( 'admin_init', array( $this, 'page_init' ) );
-    }
-
-    public function add_page() {
-        // This page will be under "Settings"
-        add_options_page(
-            'Harker Donors Settings', 
-            'Harker Donors', 
-            'manage_options', 
-            'hkr-donors-settings', 
-            array( $this, 'create_admin_page' )
-        );
-    }
-
-    // Options page callback
-    public function create_admin_page() {
-        // Set class property
-        $this->options = get_option( 'hkr_donors_options' );
-        ?>
-        <div class="wrap">
-            <h2>Harker Donors Settings</h2>           
-            <form method="post" action="options.php">
-            <?php
-                // This prints out all hidden setting fields
-                settings_fields( 'hkr_donors_options_group' );   
-                do_settings_sections( 'hkr-donors-settings' );
-                submit_button(); 
-            ?>
-            </form>
-        </div>
-        <?php
-    }
-
-    // Register and add settings
-    public function page_init() {        
-        register_setting(
-            'hkr_donors_options_group', // Option group
-            'hkr_donors_options' // Option name
-        );
-
-        add_settings_section(
-            'hkr_donors_general_section', // ID
-            'Global Settings', // Title
-            array( $this, 'print_section_info' ), // Callback
-            'hkr-donors-settings' // Page
-        );  
-
-        add_settings_field(
-            'last_modified', // ID
-            'Data Last Modified', // Title 
-            array( $this, 'last_modified_callback' ), // Callback
-            'hkr-donors-settings', // Page
-            'hkr_donors_general_section' // Section           
-        );    
-    }
-
-    /**
-     * Sanitize each setting field as needed
-     *
-     * @param array $input Contains all settings fields as array keys
-     */
-    public function sanitize( $input ) {
-        $new_input = array();
-        if( isset( $input['last_modified'] ) )
-            $new_input['last_modified'] = absint( $input['last_modified'] );
-
-        if( isset( $input['title'] ) )
-            $new_input['title'] = sanitize_text_field( $input['title'] );
-
-        return $new_input;
-    }
-
-    /** 
-     * Print the Section text
-     */
-    public function print_section_info() {
-        print 'Enter your settings below:';
-    }
-
-    /** 
-     * Get the settings option array and print one of its values
-     */
-    public function last_modified_callback() {
-        printf(
-            '<input type="text" id="last_modified" name="hkr_donors_options[last_modified]" value="%s" />',
-            isset( $this->options['last_modified'] ) ? esc_attr( $this->options['last_modified']) : ''
-        );
-    }
-} 
-
 // Object stores schoolyear-specific settings of Harker Donors plugin.
-// TODO: Create an admin interface to manage all of this shit.
+// TODO: Create an admin interface to manage all of this.
+$hkr_annual_settings = new HarkerAnnualSettings();  
+
 class HarkerAnnualSettings {
 
     private $class_totals; // number of students in each class for each school year
@@ -174,6 +78,24 @@ class HarkerAnnualSettings {
                 '2017' => 188,
                 '2016' => 187,
                 '2015' => 187
+            ),
+            '2015-16' => array(
+                '2031' => 48,
+                '2030' => 48,
+                '2029' => 23,
+                '2028' => 81,
+                '2027' => 81,
+                '2026' => 88,
+                '2025' => 110,
+                '2024' => 125,
+                '2023' => 132,
+                '2022' => 177,
+                '2021' => 175,
+                '2020' => 175,
+                '2019' => 198,
+                '2018' => 193,
+                '2017' => 190,
+                '2016' => 187
             )
         );
 
@@ -285,6 +207,38 @@ class HarkerAnnualSettings {
                     'min' => 250,
                     'max' => 499
                 )
+            ),
+            '2015-16' => array(
+                array(
+                    'title' => 'Cawing Crows',
+                    'desc' => '$3,000',
+                    'min' => 3000,
+                    'max' => 999999
+                ),
+                array(
+                    'title' => 'Hoppin Goblin\'s',
+                    'desc' => '$2,000',
+                    'min' => 2000,
+                    'max' => 2999
+                ),
+                array(
+                    'title' => 'Gonzo Ghosts',
+                    'desc' => '$1,500',
+                    'min' => 1500,
+                    'max' => 1999
+                ),
+                array(
+                    'title' => 'Wild Witches',
+                    'desc' => '$1,000',
+                    'min' => 1000,
+                    'max' => 1499
+                ),
+                array(
+                    'title' => 'Zoomin Zombies',
+                    'desc' => '$500',
+                    'min' => 500,
+                    'max' => 999
+                )
             )
         );
 
@@ -302,6 +256,14 @@ class HarkerAnnualSettings {
                 'slug' => 'picnic-teacher-pack'
             )
         );
+    }
+
+    public function get_class_total($class_year = '', $school_year = '') {
+        if ( isset($this->class_totals[$school_year][$class_year]) ) {
+            return $this->class_totals[$school_year][$class_year];
+        } else {
+            return false;
+        }
     }
 
     public function get_class_totals($school_year = '') {
@@ -334,6 +296,102 @@ if( is_admin() ) {
     $hkr_donors_settings_page = new HarkerDonorsSettingsPage();
 } 
 
-$hkr_annual_settings = new HarkerAnnualSettings();  
+// Global admin settings for Harker Donors plugin
+class HarkerDonorsSettingsPage {
+
+    // stores option values
+    private $options;
+
+    public function __construct() {
+        add_action( 'admin_menu', array( $this, 'add_page' ) );
+        add_action( 'admin_init', array( $this, 'page_init' ) );
+    }
+
+    public function add_page() {
+        // This page will be under "Settings"
+        add_options_page(
+            'Harker Donors Settings', 
+            'Harker Donors', 
+            'manage_options', 
+            'hkr-donors-settings', 
+            array( $this, 'create_admin_page' )
+        );
+    }
+
+    // Options page callback
+    public function create_admin_page() {
+        // Set class property
+        $this->options = get_option( 'hkr_donors_options' );
+        ?>
+        <div class="wrap">
+            <h2>Harker Donors Settings</h2>           
+            <form method="post" action="options.php">
+            <?php
+                // This prints out all hidden setting fields
+                settings_fields( 'hkr_donors_options_group' );   
+                do_settings_sections( 'hkr-donors-settings' );
+                submit_button(); 
+            ?>
+            </form>
+        </div>
+        <?php
+    }
+
+    // Register and add settings
+    public function page_init() {        
+        register_setting(
+            'hkr_donors_options_group', // Option group
+            'hkr_donors_options' // Option name
+        );
+
+        add_settings_section(
+            'hkr_donors_general_section', // ID
+            'Global Settings', // Title
+            array( $this, 'print_section_info' ), // Callback
+            'hkr-donors-settings' // Page
+        );  
+
+        add_settings_field(
+            'last_modified', // ID
+            'Data Last Modified', // Title 
+            array( $this, 'last_modified_callback' ), // Callback
+            'hkr-donors-settings', // Page
+            'hkr_donors_general_section' // Section           
+        );    
+    }
+
+    /**
+     * Sanitize each setting field as needed
+     *
+     * @param array $input Contains all settings fields as array keys
+     */
+    public function sanitize( $input ) {
+        $new_input = array();
+        if( isset( $input['last_modified'] ) )
+            $new_input['last_modified'] = absint( $input['last_modified'] );
+
+        if( isset( $input['title'] ) )
+            $new_input['title'] = sanitize_text_field( $input['title'] );
+
+        return $new_input;
+    }
+
+    /** 
+     * Print the Section text
+     */
+    public function print_section_info() {
+        print 'Enter your settings below:';
+    }
+
+    /** 
+     * Get the settings option array and print one of its values
+     */
+    public function last_modified_callback() {
+        printf(
+            '<input type="text" id="last_modified" name="hkr_donors_options[last_modified]" value="%s" />',
+            isset( $this->options['last_modified'] ) ? esc_attr( $this->options['last_modified']) : ''
+        );
+    }
+} 
 
 ?>
