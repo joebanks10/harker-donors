@@ -1533,7 +1533,6 @@ function hkr_dnrs_picnic_shortcode($atts, $sc_content, $shortcode) {
     if ( $query->have_posts() ) {
 
         if ( count($sponsors['levels']) > 0 ) {
-            $content .= '<h2>' . $sponsors['title'] . '</h2>';
             foreach( $sponsors['levels'] as $level ) {
                 $list = '';
                 $anonymous = 0;
@@ -1568,10 +1567,8 @@ function hkr_dnrs_picnic_shortcode($atts, $sc_content, $shortcode) {
 
                 $content .= '<h3>' . $level['title'] . ' '. $level['desc'] . '</h3>';
                 if ( !empty($list) ) {
+                    $content .= '<h2>' . $sponsors['title'] . '</h2>';
                     $content .= '<ul class="ar-list">' . $list . '</ul>';
-                }
-                else {
-                    $content .= '<p>There are no donors at this time.</p>';
                 }
                 
                 $query->rewind_posts();
@@ -1608,13 +1605,11 @@ function hkr_dnrs_picnic_shortcode($atts, $sc_content, $shortcode) {
             if ( $anonymous )
                 $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '<h2>' . $group['title'] . '</h2>';
             if ( !empty($list) ) {
+                $content .= '<h2>' . $group['title'] . '</h2>';
                 $content .= '<ul class="ar-list">' . $list . '</ul>';
             }
-            else {
-                $content .= '<p>There are no donors at this time.</p>';
-            }
+
             $query->rewind_posts();
         }
     }
@@ -1774,13 +1769,11 @@ function hkr_dnrs_fs_shortcode($atts, $sc_content, $shortcode) {
             if ( $anonymous )
                 $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '<h3>' . $level['title'] . ' '. $level['desc'] . '</h3>';
             if ( !empty($list) ) {
+                $content .= '<h3>' . $level['title'] . ' '. $level['desc'] . '</h3>';
                 $content .= '<ul class="ar-list">' . $list . '</ul>';
             }
-            else {
-                $content .= '<p>There are no donors at this time.</p>';
-            }
+
             $query->rewind_posts();
         }
 
@@ -1814,13 +1807,12 @@ function hkr_dnrs_fs_shortcode($atts, $sc_content, $shortcode) {
             if ( $anonymous )
                 $list .= "<li>Anonymous ($anonymous)</li>";
 
-            $content .= '<h2>' . $group['title'] . '</h2>';
+            
             if ( !empty($list) ) {
+                $content .= '<h2>' . $group['title'] . '</h2>';
                 $content .= '<ul class="ar-list">' . $list . '</ul>';
             }
-            else {
-                $content .= '<p>There are no donors at this time.</p>';
-            }
+            
             $query->rewind_posts();
         }
     }
