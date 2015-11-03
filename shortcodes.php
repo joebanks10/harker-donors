@@ -1812,7 +1812,7 @@ function hkr_dnrs_fs_shortcode($atts, $sc_content, $shortcode) {
                 $content .= '<h2>' . $group['title'] . '</h2>';
                 $content .= '<ul class="ar-list">' . $list . '</ul>';
             }
-            
+
             $query->rewind_posts();
         }
     }
@@ -2841,11 +2841,10 @@ function hkr_dnrs_endowment_shortcode($atts, $sc_content, $shortcode) {
     $endowment_term = get_term_by( 'slug', $endowment_slug, 'gift' );
 
     $content = '';
-    $content .= '<h2>' . $endowment_term->name . '</h2>';
 
     if ( $query->have_posts() ) {
 
-        $content .= '<ul class="ar-list">';
+        $list = '';
         $anonymous = 0;
 
         while ( $query->have_posts() ) {
@@ -2861,18 +2860,19 @@ function hkr_dnrs_endowment_shortcode($atts, $sc_content, $shortcode) {
                     continue;
                 }
 
-                $content .= '<li>' . $title . '</li>';
+                $list .= '<li>' . $title . '</li>';
             }
         }
 
         if ( $anonymous ) {
-            $content .= "<li>Anonymous ($anonymous)</li>";
+            $list .= "<li>Anonymous ($anonymous)</li>";
         }
 
-        $content .= '</ul>';
-    }
-    else {
-        $content .= '<p>There are no donors at this time.</p>';
+        if ( ! empty($list) ) {
+            $content .= '<h2>' . $endowment_term->name . '</h2>';
+            $content .= '<ul class="ar-list">' . $list . '</ul>';
+        }
+
     }
 
     wp_reset_postdata();
