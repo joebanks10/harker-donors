@@ -153,7 +153,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
                     ) );
                 }
 
-                $title = hkr_dnrs_get_title_by_record( $record_custom, 'ag_rec', $post->parents );
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr', $post->parents );
 
                 $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'ag-pledge' : '';
                 if ( $pledge_class ) {
@@ -2019,7 +2019,7 @@ function hkr_dnrs_alparents_shortcode($atts, $sc_content, $shortcode) {
 
             foreach( $post->records as $record ) {
                 $record_custom = get_post_custom( $record->ID );
-                $title = hkr_dnrs_get_title_by_record( $record_custom, 'ag_rec', array($post) );
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr', array($post) );
 
                 if ( $title == 'Anonymous' ) {
                     $anonymous++;
@@ -2204,7 +2204,7 @@ function hkr_dnrs_spag_shortcode($atts, $sc_content, $shortcode) {
 
             foreach( $post->records as $record ) {
                 $record_custom = get_post_custom( $record->ID );
-                $title = hkr_dnrs_get_title_by_record( $record_custom, 'ag_rec', array($post) );
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr', array($post) );
 
                 if ( $title == 'Anonymous' ) {
                     $anonymous++;
