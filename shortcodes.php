@@ -1,6 +1,6 @@
 <?php
 
-/* Annual Giving Class Years */
+/* Annual Giving Class Years  */
 add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
 function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
