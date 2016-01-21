@@ -2,6 +2,7 @@
 
 /* Annual Giving Class Years  */
 add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
+
 function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
     global $hkr_annual_settings;
@@ -35,42 +36,27 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         'post_type' => 'constituent',
         'nopaging' => true,
         'tax_query' => array(
+                'relation' => 'AND',
                 array(
                         'taxonomy' => 'role',
                         'field' => 'slug',
-                        'terms' => array( "$school_year-student", "$school_year-alumni" )
+                        'terms' => array( "$school_year-parent" )
                 ),
                 array(
-                        'taxonomy' => 'class_year',
+                        'taxonomy' => 'role',
                         'field' => 'slug',
-                        'terms' => $class_year
-                ),
+                        'terms' => array( "$school_year-record-owner" )
+                )
         ),
         'meta_key' => 'lname',
         'orderby' => 'meta_value',
-        'order' => 'ASC',
-        'connected_type' => 'constituents_to_records',
-        'connected_to' => 'any',
-        'connected_meta' => array( 'role' => 'Child' ),
-        'connected_query' => array(
-            'tax_query' => array(
-                    array(
-                            'taxonomy' => 'gift',
-                            'field' => 'slug',
-                            'terms' => 'annual-giving'
-                    ),
-                    array(
-                            'taxonomy' => 'school_year',
-                            'field' => 'slug',
-                            'terms' => $school_year
-                    )
-            ),
-        )
+        'order' => 'ASC'
     ));
 
     p2p_type( 'constituents_to_records' )->each_connected( $query, array(
-        'connected_meta' => array( 'role' => 'Child' ),
+        'connected_meta' => array( 'role' => 'Record Owner' ),
         'tax_query' => array(
+                    'relation' => 'AND',
                     array(
                             'taxonomy' => 'gift',
                             'field' => 'slug',
@@ -85,14 +71,21 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
     ), 'records' );
 
     p2p_type( 'parent_to_child' )->each_connected( $query, array(
+        'connected_meta' => array( 'relationship' => 'Parent-Child' ),
         'tax_query' => array(
+                    'relation' => 'AND',
                     array(
                             'taxonomy' => 'role',
                             'field' => 'slug',
-                            'terms' => "$school_year-parent"
+                            'terms' => array( "$school_year-student", "$school_year-alumni" )
+                    ),
+                    array(
+                        'taxonomy' => 'class_year',
+                        'field' => 'slug',
+                        'terms' => $class_year
                     )
         )
-    ), 'parents' );
+    ), 'children' );
 
     $content = '';
     if ( $query->have_posts() ) {
@@ -106,7 +99,35 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         while ( $query->have_posts() ) {
             $query->the_post();
             global $post;
-            $child = hkr_dnrs_get_title_by_cons( $post->ID );
+
+            if ( empty( $post->children ) ) {
+                // initial query missed the association, so query again
+                $post->children = get_posts( array(
+                    'connected_meta' => array( 'relationship' => 'Parent-Child' ),
+                    'connected_type' => 'parent_to_child',
+                    'connected_items' => $post,
+                    'nopaging' => true,
+                    'suppress_filters' => false,
+                    'tax_query' => array(
+                        'relation' => 'AND',
+                        array(
+                                'taxonomy' => 'role',
+                                'field' => 'slug',
+                                'terms' => array( "$school_year-student", "$school_year-alumni" )
+                        ),
+                        array(
+                            'taxonomy' => 'class_year',
+                            'field' => 'slug',
+                            'terms' => $class_year
+                        )
+                    )
+                ));
+
+                if ( empty( $post->children ) ) {
+                    // if still empty, bail
+                    continue;
+                }
+            }
 
             if ( empty ( $post->records ) ) {
                 // initial query missed the association, so query again
@@ -115,20 +136,25 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
                     'connected_items' => $post,
                     'nopaging' => true,
                     'suppress_filters' => false,
-                    'connected_meta' => array( 'role' => 'Child' ),
+                    'connected_meta' => array( 'role' => 'Record Owner' ),
                     'tax_query' => array(
                         array(
-                                'taxonomy' => 'gift',
-                                'field' => 'slug',
-                                'terms' => 'annual-giving'
+                            'taxonomy' => 'gift',
+                            'field' => 'slug',
+                            'terms' => 'annual-giving'
                         ),
                         array(
-                                'taxonomy' => 'school_year',
-                                'field' => 'slug',
-                                'terms' => $school_year
+                            'taxonomy' => 'school_year',
+                            'field' => 'slug',
+                            'terms' => $school_year
                         )
                     )
                 ) );
+
+                if ( empty( $post->records ) ) {
+                    // if still empty, bail
+                    continue;
+                }
             }
 
             foreach( $post->records as $record ) {
@@ -136,24 +162,8 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
                 $record_custom = get_post_custom( $record->ID );
                 $gift_terms = wp_get_object_terms( $record->ID , 'gift', array( 'fields' => 'slugs' ) );
 
-                if ( empty( $post->parents ) ) {
-                    // initial query missed the association, so query again
-                    $post->parents = get_posts( array(
-                          'connected_type' => 'parent_to_child',
-                          'connected_items' => $post,
-                          'nopaging' => true,
-                          'suppress_filters' => false,
-                          'tax_query' => array(
-                                array(
-                                        'taxonomy' => 'role',
-                                        'field' => 'slug',
-                                        'terms' => "$school_year-parent"
-                                )
-                        )
-                    ) );
-                }
-
-                $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr', $post->parents );
+                $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr' );
+                $child = hkr_dnrs_get_title_by_cons( $post->children[0]->ID );
 
                 $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'ag-pledge' : '';
                 if ( $pledge_class ) {
