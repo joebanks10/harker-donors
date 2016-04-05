@@ -186,6 +186,13 @@ function hkr_dnrs_print_constituent_fields() {
     $max_year = $current_year + 20;
     $min_year = 1893;
 
+    // get capital campaign levels
+    $cc_levels = get_terms('cc_level', array(
+        'hide_empty' => false
+    ));
+    $cons_cc_levels = wp_get_object_terms($post->ID, 'cc_level');
+    $cons_cc_level = $cons_cc_levels[0];
+
     // create nonce for verification
     wp_nonce_field( plugin_basename( __FILE__ ), 'hkr_dnrs_constituent_fields_nonce' );
 
@@ -214,6 +221,16 @@ function hkr_dnrs_print_constituent_fields() {
         <tr>
             <th scope="row"><label for="cc_rec">Capital Campaign Recognition</label></th>
             <td><input type="text" value="<?php echo $cc_rec; ?>" id="cc_rec" name="cc_rec" class="widefat" /></td>
+        </tr>
+        <tr>
+            <th scope="row"><label for="cc_level">Capital Campaign Level</label></th>
+            <td>
+                <select name="cc_level" id="cc_level">
+                    <?php foreach($cc_levels as $level): ?>
+                        <option value="<?php echo $level->term_id; ?>" <?php selected( $level->term_id, $cons_cc_level->term_id) ?> ><?php echo $level->name; ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </td>
         </tr>
         <tr>
             <th scope="row"><label for="import_id">Constituent ID</label>
@@ -248,6 +265,11 @@ function hkr_dnrs_save_constituent() {
         wp_set_post_terms($post->ID, intval($_POST['class_year']), 'class_year' );
     else
         wp_set_post_terms($post->ID, null, 'class_year' );
+
+    if ( !empty($_POST['cc_level']) )
+        wp_set_post_terms($post->ID, array(intval($_POST['cc_level'])), 'cc_level' );
+    else
+        wp_set_post_terms($post->ID, null, 'cc_level' );
 }
 
 add_action('save_post', 'hkr_dnrs_constituent_sync_roles', 15);
@@ -396,6 +418,26 @@ function hkr_dnrs_register_constituent_tax() {
         'rewrite' => array( 'slug' => 'role' )
     ));
 
+    // Capital Giving Level
+    $labels = array(
+        'name' => _x( 'CC Levels', 'taxonomy general name' ),
+        'singular_name' => _x( 'CC Level', 'taxonomy singular name' ),
+        'search_items' =>  __( 'Search Levels' ),
+        'all_items' => __( 'All Levels' ),
+        'edit_item' => __( 'Edit Level' ),
+        'update_item' => __( 'Update Level' ),
+        'add_new_item' => __( 'Add New Level' ),
+        'new_item_name' => __( 'New Level Name' ),
+        'menu_name' => __( 'CC Levels' ),
+    );
+
+    register_taxonomy( 'cc_level', array('constituent'), array(
+        'labels' => $labels,
+        'hierarchical' => true,
+        'query_var' => true,
+        'rewrite' => array( 'slug' => 'cc_level' )
+    ));
+
     // Class Years
     $labels = array(
         'name' => _x( 'Class Years', 'taxonomy general name' ),
@@ -417,6 +459,12 @@ function hkr_dnrs_register_constituent_tax() {
         'rewrite' => array( 'slug' => 'class_year' )
     ));
 
+}
+
+add_action( 'admin_menu' , 'hkr_dnrs_remove_cc_level_meta' );
+
+function hkr_dnrs_remove_cc_level_meta() {
+    remove_meta_box( 'cc_leveldiv', 'constituent', 'side' );
 }
 
 /******************************************************************************/
