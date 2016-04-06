@@ -191,7 +191,9 @@ function hkr_dnrs_print_constituent_fields() {
         'hide_empty' => false
     ));
     $cons_cc_levels = wp_get_object_terms($post->ID, 'cc_level');
-    $cons_cc_level = $cons_cc_levels[0];
+    $cons_cc_level_id = (isset($cons_cc_levels[0])) ? $cons_cc_levels[0]->term_id : 0;
+
+    echo $cons_cc_level_id;
 
     // create nonce for verification
     wp_nonce_field( plugin_basename( __FILE__ ), 'hkr_dnrs_constituent_fields_nonce' );
@@ -222,16 +224,19 @@ function hkr_dnrs_print_constituent_fields() {
             <th scope="row"><label for="cc_rec">Capital Campaign Recognition</label></th>
             <td><input type="text" value="<?php echo $cc_rec; ?>" id="cc_rec" name="cc_rec" class="widefat" /></td>
         </tr>
+        <?php if(!empty($cc_levels)): ?>
         <tr>
             <th scope="row"><label for="cc_level">Capital Campaign Level</label></th>
             <td>
                 <select name="cc_level" id="cc_level">
+                    <option value="0" <?php selected( 0, $cons_cc_level_id) ?> ><?php echo 'None'; ?></option>
                     <?php foreach($cc_levels as $level): ?>
-                        <option value="<?php echo $level->term_id; ?>" <?php selected( $level->term_id, $cons_cc_level->term_id) ?> ><?php echo $level->name; ?></option>
+                        <option value="<?php echo $level->term_id; ?>" <?php selected( $level->term_id, $cons_cc_level_id) ?> ><?php echo $level->name; ?></option>
                     <?php endforeach; ?>
                 </select>
             </td>
         </tr>
+        <?php endif; ?>
         <tr>
             <th scope="row"><label for="import_id">Constituent ID</label>
             <td>
