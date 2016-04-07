@@ -3209,11 +3209,11 @@ function hkr_dnrs_cc_shortcode($atts, $sc_content, $shortcode) {
             'post_type' => 'constituent',
             'nopaging' => true,
             'tax_query' => array(
-                    array(
-                            'taxonomy' => 'role',
-                            'field' => 'slug',
-                            'terms' => $level['slug']
-                    )
+                array(
+                    'taxonomy' => 'cc_level',
+                    'field' => 'slug',
+                    'terms' => $level['slug']
+                )
             ),
             'meta_key' => 'lname',
             'orderby' => 'meta_value',
