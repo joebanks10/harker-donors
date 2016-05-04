@@ -3260,7 +3260,7 @@ function hkr_dnrs_cc_shortcode($atts, $sc_content, $shortcode) {
         wp_reset_postdata();
     }
 
-    hkr_set_cached_content($shortcode, '', $content); // school year is n/a
+    hkr_set_cached_content($shortcode, 'all', $content); // school year is n/a
     return apply_filters( 'hkr_dnrs_list', $content );
 }
 
