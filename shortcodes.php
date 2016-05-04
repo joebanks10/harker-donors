@@ -3131,6 +3131,11 @@ function hkr_dnrs_cc_shortcode($atts, $sc_content, $shortcode) {
             'slug' => 'founding-visionaries'
         ),
         array(
+            'title' => 'Inspirational Visionaries',
+            'desc' => '($10,000,000+)',
+            'slug' => 'inspirational-visionaries'
+        ),
+        array(
             'title' => 'Leading Visionaries',
             'desc' => '($2,500,000+)',
             'slug' => 'leading-visionaries'
