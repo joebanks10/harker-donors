@@ -1,5 +1,7 @@
 <?php
 
+ini_set('memory_limit', '256M');
+
 /* Annual Giving Class Years  */
 add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
 
@@ -50,7 +52,24 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         ),
         'meta_key' => 'lname',
         'orderby' => 'meta_value',
-        'order' => 'ASC'
+        'order' => 'ASC',
+        'connected_type' => 'parent_to_child',
+        'connected_to' => 'any',
+        'connected_query' => array(
+            'tax_query' => array(
+                    'relation' => 'AND',
+                    array(
+                            'taxonomy' => 'role',
+                            'field' => 'slug',
+                            'terms' => array( "$school_year-student", "$school_year-alumni" )
+                    ),
+                    array(
+                        'taxonomy' => 'class_year',
+                        'field' => 'slug',
+                        'terms' => $class_year
+                    )
+            ),
+        )
     ));
 
     p2p_type( 'constituents_to_records' )->each_connected( $query, array(
@@ -98,6 +117,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
         while ( $query->have_posts() ) {
             $query->the_post();
+
             global $post;
 
             if ( empty( $post->children ) ) {
@@ -126,7 +146,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
                 if ( empty( $post->children ) ) {
                     // if still empty, bail
                     continue;
-                }
+                } 
             }
 
             if ( empty ( $post->records ) ) {
