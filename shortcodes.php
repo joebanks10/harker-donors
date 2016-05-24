@@ -25,7 +25,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
     $cached_content = hkr_get_cached_content( $shortcode, $school_year . '_' . $class_year );
     if ( $cached_content ) {
-        return apply_filters( 'hkr_dnrs_list', $cached_content );
+        // return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
     $class_total = $hkr_annual_settings->get_class_total($class_year, $school_year);
@@ -183,7 +183,12 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
                 $gift_terms = wp_get_object_terms( $record->ID , 'gift', array( 'fields' => 'slugs' ) );
 
                 $title = hkr_dnrs_get_title_by_record( $record_custom, 'inf_addr' );
-                $child = hkr_dnrs_get_title_by_cons( $post->children[0]->ID );
+
+                $children = array();
+                foreach( $post->children as $child ) {
+                    $children[] = hkr_dnrs_get_title_by_cons( $child->ID );
+                }
+                $children_txt = join('<br>', $children);
 
                 $pledge_class = ( has_term('annual-giving-pledge', 'gift', $record->ID ) ) ? 'ag-pledge' : '';
                 if ( $pledge_class ) {
@@ -203,7 +208,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
                 $classes = $gift_terms;
                 $classes[] = $pledge_class;
 
-                $list .= '<li class="' . implode(' ', get_post_class( $classes, $record->ID ) ) . '">' . $title . '<br />' . $child . $icon . '</li>';
+                $list .= '<li class="' . implode(' ', get_post_class( $classes, $record->ID ) ) . '">' . $title . '<br />' . $children_txt . $icon . '</li>';
             }
             $class_count++;
         }
