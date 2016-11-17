@@ -11,6 +11,7 @@ define('HKR_DNRS_URL', plugin_dir_url(__FILE__) );
 
 require(HKR_DNRS_PATH . 'includes/settings.php');
 require(HKR_DNRS_PATH . 'includes/helper-functions.php');
+require(HKR_DNRS_PATH . 'includes/giving-by-class-chart.php');
 require(HKR_DNRS_PATH . 'shortcodes.php');
 
 add_action('admin_print_styles', 'hkr_dnrs_admin_styles');
