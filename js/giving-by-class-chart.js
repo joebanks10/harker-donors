@@ -113,5 +113,5 @@ var BarChart = (function() {
 // Start
 BarChart.init({
   selector: ".giving-by-class-chart",
-  data: ajaxurl + "?action=hkr_dnrs_giving_by_class_data"
+  data: ajaxurl + "?action=hkr_dnrs_giving_by_class_data&school_year=" + hkr_dnrs.school_year
 });
