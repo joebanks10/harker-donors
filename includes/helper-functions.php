@@ -132,4 +132,12 @@ function hkr_set_cached_content($shortcode, $school_year = 'all', $content) {
     set_transient($cached_year . '_' . $shortcode, $content, 60 * 60 * 24 * 30 ); // 30 days
 }
 
-?>
+function hkr_dnrs_get_class_year( $post_id ) {
+    $class_years = wp_get_object_terms( $post_id, 'class_year', array('fields' => 'names') );
+    if ( count($class_years) == 1 ) {
+        return $class_years[0];
+    } 
+    else {
+        return false;
+    }
+}
