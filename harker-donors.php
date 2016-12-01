@@ -11,6 +11,7 @@ define('HKR_DNRS_URL', plugin_dir_url(__FILE__) );
 
 require(HKR_DNRS_PATH . 'includes/settings.php');
 require(HKR_DNRS_PATH . 'includes/helper-functions.php');
+require(HKR_DNRS_PATH . 'includes/giving-by-class-stats.php');
 require(HKR_DNRS_PATH . 'includes/giving-by-class-chart.php');
 require(HKR_DNRS_PATH . 'shortcodes.php');
 
@@ -108,41 +109,41 @@ add_action( 'init', 'hkr_dnrs_register_constituent' );
  */
 function hkr_dnrs_register_constituent() {
 
-  $labels = array(
-    'name' => _x('Constituents', 'post type general name'),
-    'singular_name' => _x('Constituent', 'post type singular name'),
-    'add_new' => _x('Add New', 'constituent'),
-    'add_new_item' => __('Add New Constituent'),
-    'edit_item' => __('Edit Constituent'),
-    'new_item' => __('New Constituent'),
-    'all_items' => __('All Constituents'),
-    'view_item' => __('View Constituent'),
-    'search_items' => __('Search Constituents'),
-    'not_found' =>  __('No constituents found'),
-    'not_found_in_trash' => __('No constituents found in Trash'),
-    'parent_item_colon' => '',
-    'menu_name' => 'Constituents'
-  );
+    $labels = array(
+        'name' => _x('Constituents', 'post type general name'),
+        'singular_name' => _x('Constituent', 'post type singular name'),
+        'add_new' => _x('Add New', 'constituent'),
+        'add_new_item' => __('Add New Constituent'),
+        'edit_item' => __('Edit Constituent'),
+        'new_item' => __('New Constituent'),
+        'all_items' => __('All Constituents'),
+        'view_item' => __('View Constituent'),
+        'search_items' => __('Search Constituents'),
+        'not_found' =>  __('No constituents found'),
+        'not_found_in_trash' => __('No constituents found in Trash'),
+        'parent_item_colon' => '',
+        'menu_name' => 'Constituents'
+    );
 
-  $args = array(
-    'labels' => $labels,
-    'public' => false,
-    'exclude_from_search' => true,
-    'publicly_queryable' => false,
-    'show_ui' => true,
-    'show_in_nav_menus' => false,
-    'show_in_menu' => true,
-    'query_var' => true,
-    'rewrite' => true,
-    'capability_type' => 'post',
-    'has_archive' => true,
-    'hierarchical' => false,
-    'menu_position' => 5,
-    'register_meta_box_cb' => 'hkr_dnrs_register_constituent_fields',
-    'supports' => array('')
-  );
+    $args = array(
+        'labels' => $labels,
+        'public' => false,
+        'exclude_from_search' => true,
+        'publicly_queryable' => false,
+        'show_ui' => true,
+        'show_in_nav_menus' => false,
+        'show_in_menu' => true,
+        'query_var' => true,
+        'rewrite' => true,
+        'capability_type' => 'post',
+        'has_archive' => true,
+        'hierarchical' => false,
+        'menu_position' => 5,
+        'register_meta_box_cb' => 'hkr_dnrs_register_constituent_fields',
+        'supports' => array('')
+    );
 
-  register_post_type('constituent', $args);
+    register_post_type('constituent', $args);
 
 }
 

@@ -43,7 +43,7 @@ var BarChart = (function() {
         height = +svg.attr("height") - margin.top - margin.bottom;
 
     var tip = d3.tip().attr('class', 'd3-tip n').offset([-40, 0])
-                .html(function(d) { return Math.round(d.gave * 100) + '%'; });
+                .html(function(d) { return 'Class of ' + d.class + ': ' + Math.round(d.gave * 100) + '%'; });
 
     var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height, 0]);
@@ -51,11 +51,13 @@ var BarChart = (function() {
     var g = svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    d3.tsv(settings.data, function(d) {
-      d.gave = +d.gave;
-      return d;
-    }, function(error, data) {
+    d3.json(settings.data, function(error, data) {
       if (error) throw error;
+
+      data = data.map(function(d) {
+        d.gave = +d.gave;
+        return d;
+      });
 
       x.domain(data.map(function(d) { return d.class; }));
       y.domain([0, 1]);
@@ -113,5 +115,5 @@ var BarChart = (function() {
 // Start
 BarChart.init({
   selector: ".giving-by-class-chart",
-  data: ajaxurl + "?action=hkr_dnrs_giving_by_class_data&school_year=" + hkr_dnrs.school_year
+  data: hkr_dnrs.ajax_url + "?action=hkr_dnrs_giving_by_class_data&school_year=" + hkr_dnrs.school_year
 });

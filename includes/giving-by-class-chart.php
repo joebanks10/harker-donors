@@ -21,7 +21,8 @@ class GivingByClassChart {
         wp_enqueue_script('giving-by-class-chart', HKR_DNRS_URL . 'js/giving-by-class-chart.js', array('d3-core', 'd3-tip'), '1.0', true);
 
         wp_localize_script('giving-by-class-chart', 'hkr_dnrs', array(
-            'school_year' => hkr_get_school_year($post->ID)
+            'school_year' => hkr_get_school_year($post->ID),
+            'ajax_url' => admin_url( 'admin-ajax.php' )
         ));
 
         $output = '<div class="chart-container"><svg width="' . $atts['width'] . '" height="' . $atts['height'] . '" class="giving-by-class-chart"></svg></div>';
@@ -34,18 +35,25 @@ class GivingByClassChart {
     }
 
     public function data() {
-        global $hkr_annual_settings;
+        global $giving_by_class_stats;
 
-        $school_year = $_GET['school_year'];
-        $class_totals = $hkr_annual_settings->get_class_totals($school_year);
+        $school_year = (isset($_GET['school_year'])) ? $_GET['school_year'] : '';
 
-        var_dump($class_totals); exit();
+        // $giving_by_class_stats->refresh($school_year);
 
-        header('Content-Type: text/tab-separated-values');
+        $stats = $giving_by_class_stats->get($school_year);
+        $output = array();
 
-        $output = file_get_contents(HKR_DNRS_PATH . 'tmp/data.tsv');
+        foreach($stats as $class => $percent) {
+            $output[] = array(
+                'class' => $class,
+                'gave' => $percent/100
+            );
+        }
 
-        echo $output;
+        header('Content-Type: application/json');
+
+        echo json_encode($output); // file_get_contents(HKR_DNRS_PATH . 'tmp/data.tsv');
 
         exit();
     }

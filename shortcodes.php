@@ -8,6 +8,7 @@ add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
 function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
     global $hkr_annual_settings;
+    global $giving_by_class_stats;
 
     extract($atts = shortcode_atts( array(
         'class_year' => 0,
@@ -216,6 +217,9 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         $percent = round( $class_count/$class_total * 100 );
         $stat = ( $has_pledge ) ? "<h2>$percent% ($class_count out of {$class_total}) gave/pledged.</h2>" : "<h2>$percent% ($class_count out of {$class_total}) gave.</h2>";   
         $content .= $stat;
+
+        // save stat for graph
+        $giving_by_class_stats->update($school_year, $class_year, $percent);
 
         if ( $has_pledge ) {
             $content .= '<p>Gave | <span class="ag-pledge">Pledged</span></p>';

@@ -21,7 +21,7 @@ class GivingByClassStats {
         }
     }
 
-    public function set($school_year, $class_year, $value) {
+    public function update($school_year, $class_year, $value) {
         $stats = $this->get_stats_option($school_year);
         $class_years = $this->get_class_years($school_year);
 
@@ -46,6 +46,10 @@ class GivingByClassStats {
     }
 
     public function refresh($school_year, $class_year = null) {
+        if (!isset($school_year)) {
+            return;
+        }
+
         $class_years = $this->get_class_years($school_year);
 
         if (isset($class_year) && in_array($class_year, $class_years)) {
@@ -90,3 +94,5 @@ class GivingByClassStats {
     }
 
 }
+
+$giving_by_class_stats = new GivingByClassStats();
