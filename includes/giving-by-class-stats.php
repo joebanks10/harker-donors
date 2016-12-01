@@ -79,12 +79,11 @@ class GivingByClassStats {
     private function get_class_years($school_year) {
         $class_years = array();
 
-        $graduating_class = hkr_get_end_school_year($school_year);
-        $number_of_classes = 16; // Age 3, Age 4, TK, K-12
-        $class_year = $graduating_class;
+        $oldest_class = hkr_get_end_school_year($school_year);
+        $youngest_class = $oldest_class + 15; // 16 classes: Age 3, Age 4, TK, K-12
 
-        for($i = 0; $i < $number_of_classes; $i++) {
-            $class_years[] = $class_year++;
+        for($i = $youngest_class; $i >= $oldest_class; $i--) {
+            $class_years[] = $i;
         }
 
         return $class_years;
