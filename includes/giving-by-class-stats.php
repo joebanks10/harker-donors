@@ -22,8 +22,10 @@ class GivingByClassStats {
     }
 
     public function update($school_year, $class_year, $value) {
+        global $hkr_class_years;
+
         $stats = $this->get_stats_option($school_year);
-        $class_years = $this->get_class_years($school_year);
+        $class_years = $hkr_class_years->get_class_years($school_year);
 
         if (!in_array($class_year, $class_years)) {
             return false; // invalid year
@@ -46,11 +48,13 @@ class GivingByClassStats {
     }
 
     public function refresh($school_year, $class_year = null) {
+        global $hkr_class_years;
+
         if (!isset($school_year)) {
             return;
         }
 
-        $class_years = $this->get_class_years($school_year);
+        $class_years = $hkr_class_years->get_class_years($school_year);
 
         if (isset($class_year) && in_array($class_year, $class_years)) {
             $this->refresh_class_year($school_year, $c);
@@ -69,28 +73,30 @@ class GivingByClassStats {
     }
 
     private function get_stats_option($school_year) {
-        return get_option($this->get_option_key($school_year));
-    }
+        global $hkr_class_years;
 
-    private function update_stats_option($school_year, $value) {
-        return update_option($this->get_option_key($school_year), $value);
-    }
+        $stats = array();
+        $class_years = $hkr_class_years->get($school_year);
 
-    private function get_option_key($school_year) {
-        return sanitize_key("giving-by-class-stats-$school_year");
-    }
-
-    private function get_class_years($school_year) {
-        $class_years = array();
-
-        $oldest_class = hkr_get_end_school_year($school_year);
-        $youngest_class = $oldest_class + 15; // 16 classes: Age 3, Age 4, TK, K-12
-
-        for($i = $youngest_class; $i >= $oldest_class; $i--) {
-            $class_years[] = $i;
+        foreach ($class_years as $class_year => $class_data) {
+            $stats[$class_year] = $class_data['gave_percent'];
         }
 
-        return $class_years;
+        return $stats;
+    }
+
+    private function update_stats_option($school_year, $stats) {
+        global $hkr_class_years;
+
+        $class_years = $hkr_class_years->get($school_year);
+
+        foreach ($class_years as $year => $data) {
+            if (isset($stats[$year])) {
+                $class_years[$year]['gave_percent'] = $stats[$year];
+            }
+        }
+
+        return $hkr_class_years->update($school_year, $class_years);
     }
 
 }

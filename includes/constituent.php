@@ -36,6 +36,7 @@ function hkr_dnrs_register_constituent() {
         'has_archive' => true,
         'hierarchical' => false,
         'menu_position' => 5,
+        'menu_icon' => 'dashicons-admin-users',
         'register_meta_box_cb' => 'hkr_dnrs_register_constituent_fields',
         'supports' => array('')
     );

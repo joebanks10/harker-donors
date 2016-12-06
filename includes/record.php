@@ -36,6 +36,7 @@ function hkr_dnrs_register_record() {
     'has_archive' => true,
     'hierarchical' => false,
     'menu_position' => 5,
+    'menu_icon' => 'dashicons-id-alt',
     'register_meta_box_cb' => 'hkr_dnrs_register_record_fields',
     'supports' => array('')
   );
@@ -102,7 +103,7 @@ function hkr_dnrs_print_record_fields() {
     <table class="form-table">
     <tbody>
         <tr>
-            <th scope="row"><label for="school_year">Campaign Year</label>
+            <th scope="row"><label for="school_year">Campaign Year</label></th>
             <td>
                 <select id="school_year" name="school_year">
                     <?php

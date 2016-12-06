@@ -11,12 +11,14 @@ define('HKR_DNRS_URL', plugin_dir_url(__FILE__) );
 
 require(HKR_DNRS_PATH . 'includes/settings.php');
 require(HKR_DNRS_PATH . 'includes/helper-functions.php');
+require(HKR_DNRS_PATH . 'includes/class-years.php');
 require(HKR_DNRS_PATH . 'includes/giving-by-class-stats.php');
 require(HKR_DNRS_PATH . 'includes/giving-by-class-chart.php');
 require(HKR_DNRS_PATH . 'includes/shortcodes.php');
 require(HKR_DNRS_PATH . 'includes/connections.php');
 require(HKR_DNRS_PATH . 'includes/constituent.php');
 require(HKR_DNRS_PATH . 'includes/record.php');
+require(HKR_DNRS_PATH . 'includes/annual-report.php');
 
 add_action('admin_print_styles', 'hkr_dnrs_admin_styles');
 
