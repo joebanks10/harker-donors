@@ -1,0 +1,13 @@
+#class-years-spinner {
+    float: none;
+    position: relative;
+    top: -3px;
+}
+
+#postcustomstuff table input {
+    width: 93%;
+}
+
+.refresh-stats {
+    margin-bottom: 10px;
+}
