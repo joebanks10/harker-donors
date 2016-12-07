@@ -221,6 +221,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         // save stat for graph
         $hkr_class_years->update($school_year, array(
             $class_year => array(
+                'student_count' => $class_total,
                 'gave_count' => $class_count,
                 'gave_percent' => $percent
             )
