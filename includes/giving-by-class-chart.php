@@ -35,19 +35,18 @@ class GivingByClassChart {
     }
 
     public function data() {
-        global $giving_by_class_stats;
+        global $hkr_class_years;
 
         $school_year = (isset($_GET['school_year'])) ? $_GET['school_year'] : '';
 
-        // $giving_by_class_stats->refresh($school_year);
-
-        $stats = $giving_by_class_stats->get($school_year);
+        $class_years = $hkr_class_years->get($school_year);
         $output = array();
 
-        foreach($stats as $class => $percent) {
+        foreach($class_years as $year => $data) {
             $output[] = array(
-                'class' => $class,
-                'gave' => $percent/100
+                'class' => $year,
+                'gave' => $data['gave_percent']/100,
+                'gave_count' => $data['gave_count']
             );
         }
 

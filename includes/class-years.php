@@ -9,11 +9,37 @@ class ClassYears {
         'gave_percent' => 0
     );
 
+    public function __construct() {
+        add_action( 'wp_ajax_hkr_dnrs_class_years', array($this, 'ajax_get') );
+    }
+
     public function get($school_year) {
         $data = get_option($this->get_option_key($school_year));
-        $data = empty($data) ? $this->get_default_option_value() : $data;
+        $data = empty($data) ? $this->get_default_option_value($school_year) : $data;
 
         return $data;
+    }
+
+    public function ajax_get() {
+        $school_year = (isset($_GET['school_year'])) ? $_GET['school_year'] : '';
+        $refresh = (isset($_GET['refresh'])) ? $_GET['refresh'] : false;
+
+        if ($refresh) {
+            $this->generate_stats($school_year);
+        }
+
+        $data = $this->get($school_year);
+        $output = [];
+
+        foreach ($data as $class_data) {
+            $output[] = $class_data;
+        }
+
+        header('Content-Type: application/json');
+
+        echo json_encode($output); 
+
+        exit();
     }
 
     public function update($school_year, $data) {
@@ -33,24 +59,34 @@ class ClassYears {
         return update_option($option_key, $option_value);
     }
 
-    public function update_class($school_year, $class_year, $class_data) {
-        $option_key = $this->get_option_key($school_year);
-        $option_value = get_option($option_key);
-
-        if (!$option_value) {
-            $option_value = $this->get_default_option_value($school_year);
+    public function generate_stats($school_year, $class_year = null) {
+        if (!isset($school_year)) {
+            return;
         }
 
-        if (!isset($option_value[$class_year])) {
-            return false;
+        $class_years = $this->get_class_years($school_year);
+
+        if (isset($class_year) && in_array($class_year, $class_years)) {
+            $this->generate_class_stats($school_year, $class_year);
+        } else {
+            foreach ($class_years as $c) {
+                $this->generate_class_stats($school_year, $c);
+            }
         }
+    }
 
-        $option_value[$class_year] = array_map($option_value[$class_year], $class_data);
-
-        return update_option($option_key, $option_value);
+    public function generate_class_stats($school_year, $class_year) {
+        $shortcode = sprintf('[dnrs_class_year school_year="%s" class_year="%s"]', $school_year, $class_year);
+        
+        // running shortcode updates the stats
+        do_shortcode($shortcode);
     }
 
     private function get_default_option_value($school_year) {
+        if (!isset($school_year)) {
+            return array();
+        }
+
         $default_value = array();
         $class_years = $this->get_class_years($school_year);
 

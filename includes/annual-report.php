@@ -5,6 +5,16 @@ class AnnualReport {
     public function __construct() {
         add_action( 'init', array($this, 'register') );
         add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
+        add_action( 'admin_enqueue_scripts', array($this, 'admin_scripts') );
+    }
+
+    public function admin_scripts() {
+        global $post;
+
+        if ($post->post_type === 'report') {
+            wp_enqueue_script('annual-report-admin', HKR_DNRS_URL . 'js/annual-report-admin.js', array('jquery'), false, true);
+            wp_enqueue_style('annual-report-admin-css', HKR_DNRS_URL . 'css/annual-report-admin.css');
+        }
     }
 
     public function register() {
@@ -57,7 +67,7 @@ class AnnualReport {
         );
         add_meta_box(
             'hkr_dnrs_class_years',
-            'Student Class Years',
+            'Student Class Years <span id="class-years-spinner" class="spinner"></span>',
             array($this, 'class_years_form'),
             'report',
             'normal',
@@ -100,22 +110,14 @@ class AnnualReport {
 
     public function class_years_form() {
         global $post;
-        global $giving_by_class_stats;
-
-
 
         wp_nonce_field(basename(__FILE__), 'hkr_dnrs_class_years');
 
         ?>
-        <style>
-            #postcustomstuff table input {
-                width: 93%;
-            }
-            .refresh-stats {
-                margin-top: 10px;
-            }
-        </style>
         <div id="postcustomstuff">
+            <div class="refresh-stats">
+                <input type="submit" id="refresh-stats-button" class="button button-small" value="Generate Gave/Pledge Stats">
+            </div>
             <table id="list-table">
               <thead>
                 <tr>
@@ -128,87 +130,26 @@ class AnnualReport {
               <tbody id="class-rows">
               </tbody>
             </table>
-            <div class="refresh-stats">
-                <input type="submit" id="refresh-2030" class="button button-small refresh-stats-button" value="Refresh Gave/Pledge Stats">
-            </div>
         </div>
         <script id="class-row-template" type="text/template">
             <tr>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-year">Class Year</label>
-                <input name="classes[][year]" id="class-of-{{year}}-year" type="text" class="large-text" value="{{year}}" readonly>
+                <input name="classes[][year]" id="class-of-{{year}}-year" type="text" class="large-text class-year" value="{{year}}" readonly>
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-count">Student Count</label>
-                <input name="classes[][count]" id="class-of-{{year}}-count" type="text" class="large-text" value="{{count}}">
+                <input name="classes[][count]" id="class-of-{{year}}-count" type="text" class="large-text class-count" value="{{count}}">
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-gave-count">Gave/Pledged Count</label>
-                <input name="classes[][gave_count]" id="class-of-{{year}}-gave-count" type="text" class="large-text" value="{{gave_count}}">
+                <input name="classes[][gave_count]" id="class-of-{{year}}-gave-count" type="text" class="large-text class-gave-count" value="{{gave_count}}" readonly>
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-gave-percent">Gave/Pledged Percent</label>
-                <input name="classes[][gave_count]" id="class-of-{{year}}-gave-percent" type="text" class="large-text" value="{{gave_percent}}">
+                <input name="classes[][gave_count]" id="class-of-{{year}}-gave-percent" type="text" class="large-text class-gave-percent" value="{{gave_percent}}" readonly>
               </td>
             </tr>
-        </script>
-        <script>
-            (function($){
-                $(function() {
-                    _.templateSettings = {
-                        interpolate: /\{\{(.+?)\}\}/g
-                    };
-
-                    var template = _.template($('#class-row-template').html());
-                    
-                    // when school year is selected
-                    // get class years data with ajax
-                    // loop through data and render template
-                    // add to dom
-                    // $('#class-rows').html(template({
-                        // year: "2030",
-                        // count: 100,
-                        // gave_count: 39,
-                        // gave_percent: 39
-                    // }));
-
-                    var classRows = getClassYears('2016-17').map(function(classYear) {
-                        return template({ 
-                            year: classYear,
-                            count: '',
-                            gave_count: '',
-                            gave_percent: ''
-                        });
-                    });
-
-                    $('#class-rows').html(classRows.join(' '));
-
-                    function getClassYears(schoolYear) {
-                        var classYears = [],
-                            oldestClass = +getEndYear(schoolYear),
-                            youngestClass = oldestClass + 15; // 16 classes: Age 3, Age 4, TK, K-12
-
-                        for(var i = youngestClass; i >= oldestClass; i--) {
-                            classYears.push(i);
-                        }
-
-                        return classYears;
-                    }
-
-                    // expects schoolYear to be formatted as YYYY-YY (e.g. 2016-17)
-                    function getEndYear(schoolYear) {
-                        var classYears = [],
-                            re = /^(\d\d\d\d)\-\d\d$/,
-                            match = schoolYear.match(re);
-
-                        if (match) {
-                            return (+match[1] + 1).toString();
-                        } else {
-                            return "";
-                        }
-                    }
-                });
-            })(jQuery);
         </script>
 
         <?php

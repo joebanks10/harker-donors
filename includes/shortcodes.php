@@ -8,7 +8,7 @@ add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
 function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
 
     global $hkr_annual_settings;
-    global $giving_by_class_stats;
+    global $hkr_class_years;
 
     extract($atts = shortcode_atts( array(
         'class_year' => 0,
@@ -22,7 +22,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         global $post;
         $school_year = hkr_get_school_year( $post->ID );
         if ( !$school_year ) return;
-    }
+    } 
 
     $cached_content = hkr_get_cached_content( $shortcode, $school_year . '_' . $class_year );
     if ( $cached_content ) {
@@ -219,7 +219,12 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         $content .= $stat;
 
         // save stat for graph
-        $giving_by_class_stats->update($school_year, $class_year, $percent);
+        $hkr_class_years->update($school_year, array(
+            $class_year => array(
+                'gave_count' => $class_count,
+                'gave_percent' => $percent
+            )
+        ));
 
         if ( $has_pledge ) {
             $content .= '<p>Gave | <span class="ag-pledge">Pledged</span></p>';
