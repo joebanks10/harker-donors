@@ -14,7 +14,16 @@ class ClassYears {
     }
 
     public function get($school_year) {
-        $data = get_option($this->get_option_key($school_year));
+        $school_year = sanitize_title($school_year);
+
+        $report = get_posts(array(
+            'name'        => $school_year,
+            'post_type'   => 'report',
+            'numberposts' => 1,
+        ));
+
+        $data = $report ? get_post_meta($report[0]->ID, 'class_years', true) : get_transient($this->get_transient_key($school_year));
+
         $data = empty($data) ? $this->get_default_option_value($school_year) : $data;
 
         return $data;
@@ -43,20 +52,31 @@ class ClassYears {
     }
 
     public function update($school_year, $data) {
-        $option_key = $this->get_option_key($school_year);
-        $option_value = get_option($option_key);
+        $school_year = sanitize_title($school_year);
 
-        if (!$option_value) {
-            $option_value = $this->get_default_option_value($school_year);
+        $report = get_posts(array(
+            'name'        => $school_year,
+            'post_type'   => 'report',
+            'numberposts' => 1,
+        ));
+
+        $prev_classes = $report ? get_post_meta($report[0]->ID, 'class_years', true) : get_transient($this->get_transient_key($school_year));
+        $new_classes = array();
+        $default_classes = $this->get_default_option_value($school_year);
+
+        foreach ($default_classes as $class_year => $defaults) {
+            $prev_class = isset($prev_classes[$class_year]) ? $prev_classes[$class_year] : array();
+
+            $new_classes[$class_year] = isset($data[$class_year]) ? 
+                array_merge($defaults, $prev_class, $data[$class_year]) : 
+                array_merge($defaults, $prev_class);
         }
 
-        foreach ($data as $class_year => $class_data) {
-            if (isset($option_value[$class_year])) {
-                $option_value[$class_year] = array_merge($option_value[$class_year], $class_data);
-            }
+        if ($report) {
+            return update_post_meta($report[0]->ID, 'class_years', $new_classes);
+        } else {
+            return set_transient($this->get_transient_key($school_year), $new_classes, 60*60*24*3);
         }
-
-        return update_option($option_key, $option_value);
     }
 
     public function generate_stats($school_year, $class_year = null) {
@@ -97,8 +117,8 @@ class ClassYears {
         return $default_value;
     }
 
-    private function get_option_key($school_year) {
-        return sanitize_key("hkr-class-years-$school_year");
+    private function get_transient_key($school_year) {
+        return sanitize_key("${school_year}_class_years");
     }
 
     public function get_class_years($school_year) {

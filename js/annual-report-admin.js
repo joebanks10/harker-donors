@@ -12,7 +12,7 @@ var StudentClassYears = (function($) {
     };
 
     template = _.template($('#class-row-template').html());
-    $schoolYearInput = $('#school_year');
+    $schoolYearInput = $('#campaign_year');
     $generateStatsButton = $('#refresh-stats-button');
 
     bindEvents();
@@ -62,7 +62,7 @@ var StudentClassYears = (function($) {
 
     $generateStatsButton.click(function() {
       renderRows($schoolYearInput.val(), true);
-      
+
       return false;
     });
   };

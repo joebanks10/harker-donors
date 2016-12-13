@@ -6,6 +6,7 @@ class AnnualReport {
         add_action( 'init', array($this, 'register') );
         add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
         add_action( 'admin_enqueue_scripts', array($this, 'admin_scripts') );
+        add_action( 'save_post_report', array($this, 'save_report') );
     }
 
     public function admin_scripts() {
@@ -58,7 +59,7 @@ class AnnualReport {
 
     public function add_meta_boxes() {
         add_meta_box(
-            'hkr_dnrs_annual_report_basic',
+            'hkr_dnrs_annual_report_general',
             'General Settings',
             array($this, 'general_settings_form'),
             'report',
@@ -76,25 +77,39 @@ class AnnualReport {
     }
 
     public function general_settings_form() {
+        global $post;
+
+        $school_year = $post->post_name;
+        $excluded_years = array();
+
+        wp_nonce_field(basename(__FILE__), 'hkr_dnrs_ar_general');
+
         ?>
 
         <table class="form-table">
             <tbody>
                 <tr>
                     <th scope="row">
-                        <label for="school_year">Campaign Year</label>
+                        <label for="campaign_year">Campaign Year</label>
                     </th>
                     <td>
-                        <select id="school_year" name="school_year">
+                        <select id="campaign_year" name="campaign_year">
                             <?php
                                 $school_year = ( empty($school_year) ) ? hkr_get_current_school_year() : $school_year;
-                                $year_index = date('Y') - 20;
-                                for ( $i = 0; $i < 50; $i++ ) {
+                                $year_index = date('Y') - 10;
+                                for ( $i = 0; $i < 20; $i++ ) {
                                     $this_year = $year_index . '-' . substr( (string) $year_index + 1, -2);
                                     $selected = '';
+                                    $disabled = '';
+
                                     if ( $this_year == $school_year ) {
                                         $selected = 'selected="selected"';
+                                    } else {
+                                        if ( in_array($this_year, $excluded_years) ) {
+                                            $disabled = 'disabled';
+                                        }
                                     }
+
                                     echo "<option value='$this_year' $selected>$this_year</option>";
                                     $year_index++;
                                 }
@@ -111,7 +126,7 @@ class AnnualReport {
     public function class_years_form() {
         global $post;
 
-        wp_nonce_field(basename(__FILE__), 'hkr_dnrs_class_years');
+        wp_nonce_field(basename(__FILE__), 'hkr_dnrs_ar_classes');
 
         ?>
         <div id="postcustomstuff">
@@ -135,24 +150,66 @@ class AnnualReport {
             <tr>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-year">Class Year</label>
-                <input name="classes[][year]" id="class-of-{{year}}-year" type="text" class="large-text class-year" value="{{year}}" readonly>
+                <input name="classes[{{year}}][year]" id="class-of-{{year}}-year" type="text" class="large-text class-year" value="{{year}}" readonly>
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-count">Student Count</label>
-                <input name="classes[][count]" id="class-of-{{year}}-count" type="text" class="large-text class-count" value="{{count}}">
+                <input name="classes[{{year}}][student_count]" id="class-of-{{year}}-count" type="text" class="large-text class-count" value="{{count}}">
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-gave-count">Gave/Pledged Count</label>
-                <input name="classes[][gave_count]" id="class-of-{{year}}-gave-count" type="text" class="large-text class-gave-count" value="{{gave_count}}" readonly>
+                <input name="classes[{{year}}][gave_count]" id="class-of-{{year}}-gave-count" type="text" class="large-text class-gave-count" value="{{gave_count}}" readonly>
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-gave-percent">Gave/Pledged Percent</label>
-                <input name="classes[][gave_count]" id="class-of-{{year}}-gave-percent" type="text" class="large-text class-gave-percent" value="{{gave_percent}}" readonly>
+                <input name="classes[{{year}}][gave_percent]" id="class-of-{{year}}-gave-percent" type="text" class="large-text class-gave-percent" value="{{gave_percent}}" readonly>
               </td>
             </tr>
         </script>
 
         <?php
+    }
+
+    public function save_report($post_id) {
+        // If this is a revision, get real post ID
+        if ( $parent_id = wp_is_post_revision( $post_id ) ) {
+            $post_id = $parent_id;
+        }
+
+        $this->save_report_general($post_id);        
+        $this->save_report_classes($post_id);
+    }
+
+    private function save_report_general($post_id) {
+        check_admin_referer(basename(__FILE__), 'hkr_dnrs_ar_general');
+
+        if (!isset($_POST['campaign_year'])) {
+            return;
+        }
+
+        $campaign_year = $_POST['campaign_year'];
+
+        // unhook this function so it doesn't loop infinitely
+        remove_action( 'save_post_report', array($this, 'save_report') );
+
+        // update the post, which calls save_post again
+        wp_update_post( array( 
+            'ID' => $post_id, 
+            'post_title' => $campaign_year,
+            'post_name' => $campaign_year
+        ) );
+
+        // re-hook this function
+        add_action( 'save_post_report', array($this, 'save_report') );
+    }
+
+    private function save_report_classes($post_id) {
+        // echo "<pre>"; print_r($_POST['classes']); echo "</pre>"; exit();
+        check_admin_referer(basename(__FILE__), 'hkr_dnrs_ar_classes');
+
+        $data = (isset($_POST['classes'])) ? $_POST['classes'] : null;
+
+        update_post_meta($post_id, 'class_years', $data);
     }
 
 }
