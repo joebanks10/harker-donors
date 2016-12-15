@@ -14,9 +14,9 @@ class AnnualReport {
     }
 
     public function admin_scripts() {
-        global $post;
+        $screen = get_current_screen();
 
-        if ($post->post_type === 'report') {
+        if ($screen->id === 'report') {
             wp_enqueue_script('annual-report-admin', HKR_DNRS_URL . 'js/annual-report-admin.js', array('jquery'), false, true);
             wp_enqueue_style('annual-report-admin-css', HKR_DNRS_URL . 'css/edit-annual-report.css');
         }
