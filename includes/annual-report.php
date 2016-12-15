@@ -7,6 +7,10 @@ class AnnualReport {
         add_action( 'add_meta_boxes', array($this, 'add_meta_boxes') );
         add_action( 'admin_enqueue_scripts', array($this, 'admin_scripts') );
         add_action( 'save_post_report', array($this, 'save_report') );
+
+        if (is_admin()) {
+            add_action( 'pre_get_posts', array($this, 'set_report_list_order') );    
+        }
     }
 
     public function admin_scripts() {
@@ -218,6 +222,14 @@ class AnnualReport {
         }
 
         $hkr_class_years->update_by_post_id($post_id, $campaign_year, $data);
+    }
+
+    public function set_report_list_order($query) {
+        if( !$query->is_main_query() || $query->get('post_type') != 'report' ) {
+            return;
+        }
+
+        $query->set('orderby', 'title');
     }
 
 }
