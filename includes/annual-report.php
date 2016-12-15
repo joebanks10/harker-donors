@@ -79,8 +79,20 @@ class AnnualReport {
     public function general_settings_form() {
         global $post;
 
-        $school_year = $post->post_name;
-        $excluded_years = array();
+        $current_campaign = $post->post_name;
+        $years = range(date('Y') - 10, date('Y') + 10);
+        $existing_campaigns = $this->get_existing_campaign_years();
+
+        $options = array_map(function($year) use ($current_campaign, $existing_campaigns) {
+            $campaign = $year . '-' . substr((string) $year + 1, -2);
+            $selected = ($campaign === $current_campaign) ? 'selected="selected"' : '';
+
+            $is_taken = in_array($campaign, $existing_campaigns) && !$selected;
+            $disabled = ($is_taken) ? 'disabled' : '';
+            $tip = ($is_taken) ? ' (taken)' : '';
+
+            return "<option value='$campaign' $selected $disabled>$campaign $tip</option>";
+        }, $years);
 
         ?>
 
@@ -92,26 +104,7 @@ class AnnualReport {
                     </th>
                     <td>
                         <select id="campaign_year" name="campaign_year">
-                            <?php
-                                $school_year = ( empty($school_year) ) ? hkr_get_current_school_year() : $school_year;
-                                $year_index = date('Y') - 10;
-                                for ( $i = 0; $i < 20; $i++ ) {
-                                    $this_year = $year_index . '-' . substr( (string) $year_index + 1, -2);
-                                    $selected = '';
-                                    $disabled = '';
-
-                                    if ( $this_year == $school_year ) {
-                                        $selected = 'selected="selected"';
-                                    } else {
-                                        if ( in_array($this_year, $excluded_years) ) {
-                                            $disabled = 'disabled';
-                                        }
-                                    }
-
-                                    echo "<option value='$this_year' $selected>$this_year</option>";
-                                    $year_index++;
-                                }
-                            ?>
+                            <?php echo join("\r\n", $options) ?>
                         </select>
                     </td>
                 </tr>
@@ -119,6 +112,12 @@ class AnnualReport {
         </table>
 
         <?php
+    }
+
+    public function get_existing_campaign_years() {
+        return array_map(function($report) {
+            return $report->post_name;
+        }, get_posts(array( 'post_type'   => 'report' )));
     }
 
     public function class_years_form() {
