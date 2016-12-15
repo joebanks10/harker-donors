@@ -42,8 +42,9 @@ var BarChart = (function() {
         width = +svg.attr("width") - margin.left - margin.right,
         height = +svg.attr("height") - margin.top - margin.bottom;
 
-    var tip = d3.tip().attr('class', 'd3-tip n').offset([-40, 0])
-                .html(function(d) { return 'Class of ' + d.class + ': ' + Math.round(d.gave * 100) + '%'; });
+    var tip = d3.tip().attr('class', 'd3-tip n').offset([-40, 0]).html(function(d) {
+      return 'Class of ' + d.class + ': ' + Math.round(d.gave_percent * 100) + '% (' + d.gave_count + '/' + d.student_count + ')';
+    });
 
     var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height, 0]);
@@ -54,14 +55,16 @@ var BarChart = (function() {
     d3.json(settings.data, function(error, data) {
       if (error) throw error;
 
+      console.log(data);
+
       data = data.map(function(d) {
-        d.gave = +d.gave;
+        d.gave_percent = +d.gave_percent;
         return d;
       });
 
       x.domain(data.map(function(d) { return d.class; }));
       y.domain([0, 1]);
-      // y.domain([0, d3.max(data, function(d) { return d.gave; })]);
+      // y.domain([0, d3.max(data, function(d) { return d.gave_percent; })]);
 
       g.call(tip);
 
@@ -101,8 +104,8 @@ var BarChart = (function() {
           .duration(2000)
           .delay(function(d, i) { return 250 + i*50; })
           .ease(d3.easePolyOut)
-          .attr("y", function(d) { return y(d.gave); })
-          .attr("height", function(d) { return height - y(d.gave); });
+          .attr("y", function(d) { return y(d.gave_percent); })
+          .attr("height", function(d) { return height - y(d.gave_percent); });
     });
   };
 

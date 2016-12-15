@@ -45,8 +45,9 @@ class GivingByClassChart {
         foreach($class_years as $year => $data) {
             $output[] = array(
                 'class' => $year,
-                'gave' => $data['gave_percent']/100,
-                'gave_count' => $data['gave_count']
+                'student_count' => $data['student_count'],
+                'gave_count' => $data['gave_count'],
+                'gave_percent' => round($data['gave_count']/$data['student_count'], 2),
             );
         }
 
