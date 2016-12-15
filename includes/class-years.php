@@ -5,12 +5,12 @@ class ClassYears {
     private $default_class_year = array(
         'year' => '',
         'student_count' => 0,
-        'gave_count' => 0,
-        'gave_percent' => 0
+        'gave_count' => 0
     );
 
     public function __construct() {
-        add_action( 'wp_ajax_hkr_dnrs_class_years', array($this, 'ajax_get') );
+        add_action( 'wp_ajax_hkr_dnrs_get_class_years', array($this, 'get_ajax') );
+        add_action( 'wp_ajax_hkr_dnrs_update_class_years', array($this, 'update_ajax') );
     }
 
     public function get($school_year) {
@@ -29,9 +29,13 @@ class ClassYears {
         return $data;
     }
 
-    public function ajax_get() {
-        $school_year = (isset($_GET['school_year'])) ? $_GET['school_year'] : '';
+    public function get_ajax() {
+        $school_year = (isset($_GET['school_year'])) ? $_GET['school_year'] : false;
         $refresh = (isset($_GET['refresh'])) ? $_GET['refresh'] : false;
+
+        if (!$school_year) {
+            exit();
+        }
 
         if ($refresh) {
             $this->generate_stats($school_year);
@@ -51,6 +55,18 @@ class ClassYears {
         exit();
     }
 
+    public function get_class_count($school_year, $class_year) {
+        global $hkr_annual_settings;
+
+        $classes = $this->get($school_year);
+
+        if (isset($classes[$class_year]) && !empty($classes[$class_year]['student_count'])) {
+            return $classes[$class_year]['student_count'];
+        } else {
+            return $hkr_annual_settings->get_class_total($class_year, $school_year);
+        }
+    }
+
     public function update($school_year, $data) {
         $school_year = sanitize_title($school_year);
 
@@ -61,22 +77,66 @@ class ClassYears {
         ));
 
         $prev_classes = $report ? get_post_meta($report[0]->ID, 'class_years', true) : get_transient($this->get_transient_key($school_year));
+        
+        $new_classes = $this->sanitize_classes($school_year, $data, $prev_classes);
+
+        if ($report) {
+            $success = update_post_meta($report[0]->ID, 'class_years', $new_classes);
+        } else {
+            // save temporarily for 30 minutes
+            $success = set_transient($this->get_transient_key($school_year), $new_classes, 60*30); 
+        }
+
+        return $success ? $new_classes : false;
+    }
+
+    public function update_by_post_id($post_id, $school_year, $data) {
+        $prev_classes = get_post_meta($post_id, 'class_years', true);
+        $new_classes = $this->sanitize_classes($school_year, $data, $prev_classes);
+
+        $success = update_post_meta($post_id, 'class_years', $new_classes);
+
+        return $success ? $new_classes : false;
+    }
+
+    public function sanitize_classes($school_year, $classes, $prev_classes = array()) {
         $new_classes = array();
+        $prev_classes = empty($prev_classes) ? array() : $prev_classes;
         $default_classes = $this->get_default_option_value($school_year);
 
         foreach ($default_classes as $class_year => $defaults) {
             $prev_class = isset($prev_classes[$class_year]) ? $prev_classes[$class_year] : array();
 
-            $new_classes[$class_year] = isset($data[$class_year]) ? 
-                array_merge($defaults, $prev_class, $data[$class_year]) : 
+            $temp = isset($classes[$class_year]) ? 
+                array_merge($defaults, $prev_class, $classes[$class_year]) : 
                 array_merge($defaults, $prev_class);
+
+            // only copy fields needed
+            $new_classes[$class_year] = array(
+                'year' => $temp['year'],
+                'student_count' => $temp['student_count'],
+                'gave_count' => $temp['gave_count']
+            );
         }
 
-        if ($report) {
-            return update_post_meta($report[0]->ID, 'class_years', $new_classes);
-        } else {
-            return set_transient($this->get_transient_key($school_year), $new_classes, 60*60*24*3);
+        return $new_classes;
+    }
+
+    public function update_ajax() {
+        $school_year = (isset($_GET['school_year'])) ? $_GET['school_year'] : false;
+        $new_data = (isset($_GET['new_data'])) ? $_GET['new_data'] : false;
+
+        if (!$school_year) {
+            exit();
         }
+
+        $new_classes = $this->update($school_year, $new_data);
+
+        header('Content-Type: application/json');
+
+        echo json_encode($new_classes); 
+
+        exit();
     }
 
     public function generate_stats($school_year, $class_year = null) {

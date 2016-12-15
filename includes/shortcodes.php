@@ -6,8 +6,6 @@ ini_set('memory_limit', '256M');
 add_shortcode( 'dnrs_class_year', 'hkr_dnrs_class_year_shortcode' );
 
 function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
-
-    global $hkr_annual_settings;
     global $hkr_class_years;
 
     extract($atts = shortcode_atts( array(
@@ -29,7 +27,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
         // return apply_filters( 'hkr_dnrs_list', $cached_content );
     }
 
-    $class_total = $hkr_annual_settings->get_class_total($class_year, $school_year);
+    $class_total = $hkr_class_years->get_class_count($school_year, $class_year);
 
     if ( !$class_total ) {
         return;
@@ -223,8 +221,7 @@ function hkr_dnrs_class_year_shortcode($atts, $sc_content, $shortcode) {
             $class_year => array(
                 'year' => $class_year,
                 'student_count' => $class_total,
-                'gave_count' => $class_count,
-                'gave_percent' => $percent
+                'gave_count' => $class_count
             )
         ));
 

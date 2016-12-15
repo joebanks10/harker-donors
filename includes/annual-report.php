@@ -82,8 +82,6 @@ class AnnualReport {
         $school_year = $post->post_name;
         $excluded_years = array();
 
-        wp_nonce_field(basename(__FILE__), 'hkr_dnrs_ar_general');
-
         ?>
 
         <table class="form-table">
@@ -126,12 +124,10 @@ class AnnualReport {
     public function class_years_form() {
         global $post;
 
-        wp_nonce_field(basename(__FILE__), 'hkr_dnrs_ar_classes');
-
         ?>
         <div id="postcustomstuff">
             <div class="refresh-stats">
-                <input type="submit" id="refresh-stats-button" class="button button-small" value="Generate Gave/Pledge Stats">
+                <input type="submit" id="refresh-stats-button" class="button button-small" value="Generate Gave/Pledge Count">
             </div>
             <table id="list-table">
               <thead>
@@ -147,22 +143,22 @@ class AnnualReport {
             </table>
         </div>
         <script id="class-row-template" type="text/template">
-            <tr>
+            <tr class="class-row" data-class-year="{{year}}">
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-year">Class Year</label>
-                <input name="classes[{{year}}][year]" id="class-of-{{year}}-year" type="text" class="large-text class-year" value="{{year}}" readonly>
+                <input name="classes[{{year}}][year]" id="class-of-{{year}}-year" type="text" class="large-text class-year" value="{{year}}" data-class-year="{{year}}" tabindex="-1" readonly>
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-count">Student Count</label>
-                <input name="classes[{{year}}][student_count]" id="class-of-{{year}}-count" type="text" class="large-text class-count" value="{{count}}">
+                <input name="classes[{{year}}][student_count]" id="class-of-{{year}}-count" type="text" class="large-text class-count" value="{{count}}" data-class-year="{{year}}">
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-gave-count">Gave/Pledged Count</label>
-                <input name="classes[{{year}}][gave_count]" id="class-of-{{year}}-gave-count" type="text" class="large-text class-gave-count" value="{{gave_count}}" readonly>
+                <input name="classes[{{year}}][gave_count]" id="class-of-{{year}}-gave-count" type="text" class="large-text class-gave-count" value="{{gave_count}}" data-class-year="{{year}}" tabindex="-1" readonly>
               </td>
               <td>
                 <label class="screen-reader-text" for="class-of-{{year}}-gave-percent">Gave/Pledged Percent</label>
-                <input name="classes[{{year}}][gave_percent]" id="class-of-{{year}}-gave-percent" type="text" class="large-text class-gave-percent" value="{{gave_percent}}" readonly>
+                <input name="classes[{{year}}][gave_percent]" id="class-of-{{year}}-gave-percent" type="text" class="large-text class-gave-percent" value="{{gave_percent}}" data-class-year="{{year}}" tabindex="-1" readonly>
               </td>
             </tr>
         </script>
@@ -181,8 +177,6 @@ class AnnualReport {
     }
 
     private function save_report_general($post_id) {
-        check_admin_referer(basename(__FILE__), 'hkr_dnrs_ar_general');
-
         if (!isset($_POST['campaign_year'])) {
             return;
         }
@@ -204,12 +198,16 @@ class AnnualReport {
     }
 
     private function save_report_classes($post_id) {
-        // echo "<pre>"; print_r($_POST['classes']); echo "</pre>"; exit();
-        check_admin_referer(basename(__FILE__), 'hkr_dnrs_ar_classes');
+        global $hkr_class_years;
 
-        $data = (isset($_POST['classes'])) ? $_POST['classes'] : null;
+        $campaign_year = (isset($_POST['campaign_year'])) ? $_POST['campaign_year'] : false;
+        $data = (isset($_POST['classes'])) ? $_POST['classes'] : false;
 
-        update_post_meta($post_id, 'class_years', $data);
+        if (!$campaign_year || !$data) {
+            return;
+        }
+
+        $hkr_class_years->update_by_post_id($post_id, $campaign_year, $data);
     }
 
 }
