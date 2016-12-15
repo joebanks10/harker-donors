@@ -11,3 +11,7 @@
 .refresh-stats {
     margin-bottom: 10px;
 }
+
+#post-body-content {
+    margin: 0;
+}
