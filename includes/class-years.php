@@ -10,7 +10,7 @@ class ClassYears {
 
     public function __construct() {
         add_action( 'wp_ajax_hkr_dnrs_get_class_years', array($this, 'get_ajax') );
-        add_action( 'wp_ajax_hkr_dnrs_update_class_years', array($this, 'update_ajax') );
+        // add_action( 'wp_ajax_hkr_dnrs_update_class_years', array($this, 'update_ajax') );
     }
 
     public function get($school_year) {

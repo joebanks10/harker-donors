@@ -96,6 +96,7 @@ class AnnualReport {
 
         ?>
 
+        <?php wp_nonce_field('hkr_dnrs_ar_general_' . $post->ID, 'hkr_dnrs_ar_general_nonce') ?>
         <table class="form-table">
             <tbody>
                 <tr>
@@ -124,6 +125,8 @@ class AnnualReport {
         global $post;
 
         ?>
+
+        <?php wp_nonce_field('hkr_dnrs_ar_classes_' . $post->ID, 'hkr_dnrs_ar_classes_nonce') ?>
         <div id="postcustomstuff">
             <div class="refresh-stats">
                 <input type="submit" id="refresh-stats-button" class="button button-small" value="Generate Gave/Pledge Count">
@@ -176,6 +179,10 @@ class AnnualReport {
     }
 
     private function save_report_general($post_id) {
+        if (!isset($_POST['hkr_dnrs_ar_general_nonce']) || !wp_verify_nonce($_POST['hkr_dnrs_ar_general_nonce'], 'hkr_dnrs_ar_general_' . $post_id)) {
+            return;
+        }
+
         if (!isset($_POST['campaign_year'])) {
             return;
         }
@@ -198,6 +205,10 @@ class AnnualReport {
 
     private function save_report_classes($post_id) {
         global $hkr_class_years;
+
+        if (!isset($_POST['hkr_dnrs_ar_classes_nonce']) || !wp_verify_nonce($_POST['hkr_dnrs_ar_classes_nonce'], 'hkr_dnrs_ar_classes_' . $post_id)) {
+            return;
+        }
 
         $campaign_year = (isset($_POST['campaign_year'])) ? $_POST['campaign_year'] : false;
         $data = (isset($_POST['classes'])) ? $_POST['classes'] : false;
