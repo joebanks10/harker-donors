@@ -42,7 +42,7 @@ class ClassYears {
         }
 
         $data = $this->get($school_year);
-        $output = [];
+        $output = array();
 
         foreach ($data as $class_data) {
             $output[] = $class_data;
