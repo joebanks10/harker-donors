@@ -5,6 +5,7 @@ class GivingByClassChart {
     public function __construct() {
         add_shortcode( 'giving_by_class_chart', array($this, 'shortcode') );
         add_action( 'wp_ajax_hkr_dnrs_giving_by_class_data', array($this, 'data') );
+        add_action( 'wp_ajax_nopriv_hkr_dnrs_giving_by_class_data', array($this, 'data') );
         add_action( 'wp_enqueue_scripts', array($this, 'styles') );
     }
 
