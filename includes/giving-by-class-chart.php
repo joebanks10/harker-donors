@@ -14,7 +14,8 @@ class GivingByClassChart {
 
         $atts = shortcode_atts(array(
             'width' => 718,
-            'height' => 500
+            'height' => 500,
+            'school_year' => hkr_get_school_year($post->ID)
         ), $atts);
 
         wp_enqueue_script('d3-core', 'https://d3js.org/d3.v4.min.js', array(), false, true);
@@ -22,7 +23,7 @@ class GivingByClassChart {
         wp_enqueue_script('giving-by-class-chart', HKR_DNRS_URL . 'js/giving-by-class-chart.js', array('d3-core', 'd3-tip'), '1.0', true);
 
         wp_localize_script('giving-by-class-chart', 'hkr_dnrs', array(
-            'school_year' => hkr_get_school_year($post->ID),
+            'school_year' => $atts['school_year'],
             'ajax_url' => admin_url( 'admin-ajax.php' )
         ));
 
