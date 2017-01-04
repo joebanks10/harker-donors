@@ -121,7 +121,8 @@ var StudentClassYears = (function($) {
       request.done(function() {
         classData = classData.map(function(studentClass) {
           // use current input value instead of overwriting with saved data
-          var studentCount = $('#class-of-' + studentClass.year + '-count').val() || studentClass.student_count;
+          var inputVal = $('#class-of-' + studentClass.year + '-count').val();
+          var studentCount = (inputVal === '0' || inputVal === '') ? studentClass.student_count : +inputVal;
 
           return Object.assign({}, studentClass, { student_count: studentCount });
         });
