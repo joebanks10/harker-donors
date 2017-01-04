@@ -79,6 +79,8 @@ var BarChart = (function($) {
           .attr("height", 0)
           .on('mouseover', tip.show)
           .on('mouseout', tip.hide)
+          .on('touchstart', tip.show)
+          .on('touchend', tip.hide)
           .transition()
           .duration(2000)
           .delay(function(d, i) { return 250 + i*50; })
