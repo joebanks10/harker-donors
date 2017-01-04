@@ -27,7 +27,8 @@ class GivingByClassChart {
             'ajax_url' => admin_url( 'admin-ajax.php' )
         ));
 
-        $output = '<div class="chart-container"><svg width="' . $atts['width'] . '" height="' . $atts['height'] . '" class="giving-by-class-chart"></svg></div>';
+        $output = '<div class="chart-container"><svg width="' . $atts['width'] . '" height="' . $atts['height'] . '" class="giving-by-class-chart" viewBox="0 0 ' . $atts['width'] . ' ' . $atts['height'] . '"
+  preserveAspectRatio="xMinYMid"></svg></div>';
 
         return $output;
     }

@@ -1,7 +1,9 @@
 // Bar chart module
-var BarChart = (function() {
+var BarChart = (function($) {
   
   "use strict";
+
+  var svg;
 
   var init = function(options) {
     var defaults = {
@@ -11,8 +13,9 @@ var BarChart = (function() {
 
     var settings = Object.assign({}, defaults, options);
 
-    var svg = d3.select(settings.selector),
-        margin = {top: 20, right: 20, bottom: 60, left: 40},
+    svg = d3.select(settings.selector);
+
+    var margin = {top: 20, right: 20, bottom: 60, left: 40},
         width = +svg.attr("width") - margin.left - margin.right,
         height = +svg.attr("height") - margin.top - margin.bottom;
 
@@ -83,13 +86,28 @@ var BarChart = (function() {
           .attr("y", function(d) { return y(d.gave_percent); })
           .attr("height", function(d) { return height - y(d.gave_percent); });
     });
+
+    bindEvents(settings);
   };
+
+  var bindEvents = function(settings) {
+    var svg = $(settings.selector);
+    var aspect = svg.width() / svg.height();
+    var container = svg.parent();
+
+    $(window).on("resize", function() {
+        var targetWidth = container.width();
+
+        svg.attr("width", targetWidth);
+        svg.attr("height", Math.round(targetWidth / aspect));
+    }).trigger("resize");
+  }
 
   return {
     init: init
   }
 
-})();
+})(jQuery);
 
 
 // Object.assign polyfill
